@@ -47,12 +47,18 @@ public class Figure extends JPanel{
 	   public boolean showy=true;
 	   public boolean showdata=true;
 	   public boolean showfit=true;
+	   public boolean showxlog=true;
+	   public boolean showylog=true;
 	   
 	   Point origin;
 	   Point x_cal;
 	   Point y_cal;
+	   Point x_log_cal;
+	   Point y_log_cal;
 	   float x_ref;
 	   float y_ref;
+	   float x_log_ref;
+	   float y_log_ref;
 	   float x_ori=0;
 	   float y_ori=0;
 	   ArrayList<Point> data = new ArrayList<Point>();
@@ -64,7 +70,7 @@ public class Figure extends JPanel{
 	   boolean y_log=false;
 	   
 	   boolean move=false;
-	   int sel_ind=-1;
+	   Point selected;
 	   
 	   private int step;
 	   
@@ -176,7 +182,7 @@ public class Figure extends JPanel{
 		   String s;
 		   if(distance(origin,x,y)<10)
 		   {
-			   sel_ind = -2;
+			   selected = origin;
 			   Object[] possibilities = {"move", "place", "value","square"};
 			   if(isright){
 			   s = (String)JOptionPane.showInputDialog(
@@ -202,7 +208,7 @@ public class Figure extends JPanel{
 				   break;
 			   case "square" :
 				   if(step>=4)
-					   origin = new Point(y_cal.x,x_cal.y);
+					   origin.setLocation(y_cal.x,x_cal.y);
 				   break;
 			   }
 			   return true;
@@ -211,7 +217,7 @@ public class Figure extends JPanel{
 		   //dist to x_cal and y_cal
 		   if(distance(x_cal,x,y)<10)
 		   {
-			   sel_ind = -3;
+			   selected = x_cal;
 			   if(isright){
 			   Object[] possibilities = {"move", "place", "value","square","type"};
 			   s = (String)JOptionPane.showInputDialog(
@@ -237,7 +243,7 @@ public class Figure extends JPanel{
 		                   "Enter known X value: ", null));
 				   break;
 			   case "square" :
-				   x_cal = new Point(x_cal.x,origin.y);
+				   x_cal.setLocation(x_cal.x,origin.y);
 				   break;
 			   case "type" :
 				   Object[] types = {"log","linear"};
@@ -249,17 +255,21 @@ public class Figure extends JPanel{
 				                       null,
 				                       types,
 				                       "linear");
-				   if(s=="log")
+				   if(s=="log"){
 					   x_log=true;
-				   else
+					   set_step(6);
+				   }
+				   else{
 					   x_log=false;
+					   x_log_cal= new Point(-1,-1);
+				   }
 				   break;
 			   }
 			   return true;
 		   }
 		   if(distance(y_cal,x,y)<10)
 		   {
-			   sel_ind = -4;
+			   selected = y_cal;
 			   if(isright){
 			   Object[] possibilities = {"move", "place", "value","square","type"};
 			   s = (String)JOptionPane.showInputDialog(
@@ -285,7 +295,7 @@ public class Figure extends JPanel{
 		                   "Enter known Y value: ", null));
 				   break;
 			   case "square" :
-				   y_cal = new Point(origin.x,y_cal.y);
+				   y_cal.setLocation(origin.x,y_cal.y);
 				   break;
 			   case "type" :
 				   Object[] types = {"log","linear"};
@@ -297,20 +307,90 @@ public class Figure extends JPanel{
 				                       null,
 				                       types,
 				                       "linear");
-				   if(s=="log")
+				   if(s=="log"){
 					   y_log=true;
-				   else
+					   set_step(7);
+				   }
+				   else{
 					   y_log=false;
+					   y_log_cal = new Point(-1,-1);
+				   }
 				   break;
 			   }
 			   return true;
 		   }
-		   
+		   //dist to x_log_cal and y_log_cal
+		   if(distance(x_log_cal,x,y)<10&&x_log)
+		   {
+			   selected = x_log_cal;
+			   if(isright){
+			   Object[] possibilities = {"move", "place", "value","square"};
+			   s = (String)JOptionPane.showInputDialog(
+			                       Board.frame,
+			                       "What would you like to do to the X axis calibration point?:\n",
+			                       "Calibrate X axis",
+			                       JOptionPane.PLAIN_MESSAGE,
+			                       null,
+			                       possibilities,
+			                       "move");
+			   }
+			   else
+				   s="move";
+			   switch(s){
+			   case "move" :
+				   move = true;
+				   break;
+			   case "place" :
+				   set_step(6);
+				   break;
+			   case "value" :
+				   x_log_ref = Integer.parseInt(JOptionPane.showInputDialog(Board.frame,
+		                   "Enter known X value: ", null));
+				   break;
+			   case "square" :
+				   x_log_cal.setLocation(x_log_cal.x,origin.y);
+				   break;
+			   }
+			   return true;
+		   }
+		   if(distance(y_log_cal,x,y)<10&&y_log)
+		   {
+			   selected = y_log_cal;
+			   if(isright){
+			   Object[] possibilities = {"move", "place", "value","square"};
+			   s = (String)JOptionPane.showInputDialog(
+			                       Board.frame,
+			                       "What would you like to do to the Y axis calibration point?:\n",
+			                       "Calibrate Y axis",
+			                       JOptionPane.PLAIN_MESSAGE,
+			                       null,
+			                       possibilities,
+			                       "move");
+			   }
+			   else
+				   s="move";
+			   switch(s){
+			   case "move" :
+				   move = true;
+				   break;
+			   case "place" :
+				   set_step(7);
+				   break;
+			   case "value" :
+				   y_log_ref = Integer.parseInt(JOptionPane.showInputDialog(Board.frame,
+		                   "Enter known Y value: ", null));
+				   break;
+			   case "square" :
+				   y_log_cal.setLocation(origin.x,y_cal.y);
+				   break;
+			   }
+			   return true;
+		   }
 		   //check curve points
 		   for(int i=0;i<data.size();i++)
 			   if(distance(data.get(i),x,y)<10)
 			   {
-				   sel_ind = i;
+				   selected = data.get(i);
 				   if(isright){
 				   Object[] possibilities = {"move", "delete","fit","new","export"};
 				   s = (String)JOptionPane.showInputDialog(
@@ -353,12 +433,12 @@ public class Figure extends JPanel{
 				   return true;
 			   }
 		   move=false;
-		   if(sel_ind!=-1)
+		   if(selected!=null)
 		   {
-			   sel_ind=-1;
+			   selected=null;
 			   return true;
 		   }
-		   sel_ind=-1;
+		   selected=null;
 		   return false;
 	   }
 	   
@@ -374,26 +454,37 @@ public class Figure extends JPanel{
 		   switch(step){
 		   case 0:
 			   addimage();
-			   return;
+			   break;
 		   case 1:
 			   origin = new Point(x,y);
 			   set_origin_location();
+			   set_step(2);
 			   break;
 		   case 2:
 			   x_cal = new Point(x,y);
 			   set_x_ref();
+			   set_step(3);
 			   break;
 		   case 3:
 			   y_cal = new Point(x,y);
 			   set_y_ref();
+			   set_step(4);
 			   break;
 		   case 4:
 			   data.add(new Point(x,y));
 			   update_fit(10);
 			   break;
+		   case 6:
+			   x_log_cal = new Point(x,y);
+			   set_x_log_ref();
+			   set_step(4);
+			   break;
+		   case 7:
+			   y_log_cal = new Point(x,y);
+			   set_y_log_ref();
+			   set_step(4);
+			   break;
 		   }
-		   if(step<4)
-			   set_step(step+1);
 	   }
 	   
 	   private void set_origin_location(){
@@ -438,6 +529,26 @@ public class Figure extends JPanel{
 	        }
 	   }
 	   
+	   private void set_x_log_ref(){
+		   try{
+			   x_log_ref = Integer.parseInt(JOptionPane.showInputDialog(Board.frame,
+	                   "Enter known X value: ", null));
+	            }
+		   catch(RuntimeException e){
+			   x_log_ref=1;
+	        }
+	   }
+	   
+	   private void set_y_log_ref(){
+		   try{
+			   y_log_ref = Integer.parseInt(JOptionPane.showInputDialog(Board.frame,
+	                   "Enter known Y value: ", null));
+	            }
+		   catch(RuntimeException e){
+			   y_log_ref=1;
+	        }
+	   }
+	   
 	   
 	   public void set_step(int i){
 		   switch(i){
@@ -446,6 +557,8 @@ public class Figure extends JPanel{
 			   origin=new Point(-1,-1);
 			   x_cal=new Point(-1,-1);
 			   y_cal=new Point(-1,-1);
+			   x_log_cal=new Point(-1,-1);
+			   y_log_cal=new Point(-1,-1);
 			   image = new BufferedImage(x_dim, y_dim, 2);
 			   messages.setText("Click the plot area to add an image of a graph or plot, or paste one in.");
 			   break;
@@ -454,59 +567,54 @@ public class Figure extends JPanel{
 			   origin=new Point(-1,-1);
 			   x_cal=new Point(-1,-1);
 			   y_cal=new Point(-1,-1);
+			   x_log_cal=new Point(-1,-1);
+			   y_log_cal=new Point(-1,-1);
 			   messages.setText("Click the origin of the Plot/Graph.");
 			   break;
 		   case 2:
 			   data.clear();
 			   x_cal=new Point(-1,-1);
 			   y_cal=new Point(-1,-1);
+			   x_log_cal=new Point(-1,-1);
+			   y_log_cal=new Point(-1,-1);
 			   messages.setText("Click a known point on the Horizontal axis.");
 			   break;
 		   case 3:
 			   data.clear();
 			   y_cal=new Point(-1,-1);
+			   y_log_cal=new Point(-1,-1);
 			   messages.setText("Click a known point on the Vertical axis.");
 			   break;
 		   case 4:
 			   data.clear();
 			   messages.setText("Click to add data points along the curve of interest.");
 			   break;
+		   case 6:
+			   messages.setText("Click a second known point on the Horizontal Axis.");
+			   break;
+		   case 7:
+			   messages.setText("Click a second known point on the Vertical Axis.");
 		   }
 		   step = i;
 		   move=false;
-		   sel_ind=-1;
+		   selected=null;
 	   }
 	   
 	   public void movepoint(String s){
-		   if(!move||sel_ind==-1)
+		   if(!move||selected==null)
 			   return;
-		   Point p;
-		   switch(sel_ind){
-		   case -4:
-			   p = y_cal;
-			   break;
-		   case -3:
-			   p = x_cal;
-			   break;
-		   case -2:
-			   p=origin;
-			   break;
-		   default:
-			   p=data.get(sel_ind);
-			   break;
-		   }
 		   switch(s){
 		   case "up": 
-			   p.translate(0, -1);
+			   selected.translate(0, -1);
 			   break;
 		   case "down": 
-			   p.translate(0, 1);
+			   selected.translate(0, 1);
 			   break;
 		   case "left": 
-			   p.translate(-1, 0);
+			   selected.translate(-1, 0);
 			   break;
 		   case "right": 
-			   p.translate(1, 0);
+			   selected.translate(1, 0);
 			   break;
 		   }
 		   update_fit(10);
@@ -656,9 +764,13 @@ public class Figure extends JPanel{
 		   
 		   if(step>=2&&showx){
 		   g.drawLine(x_cal.x, x_cal.y, x_cal.x, x_cal.y);
+		   if(x_log&&showxlog)
+			   g.drawLine(x_log_cal.x, x_log_cal.y, x_log_cal.x, x_log_cal.y);
 		   }
 		   if(step>=3&&showy){
 		   g.drawLine(y_cal.x, y_cal.y, y_cal.x, y_cal.y);
+		   if(y_log&&showylog)
+			   g.drawLine(y_log_cal.x, y_log_cal.y, y_log_cal.x, y_log_cal.y);
 		   }
 		   if(step>=4&&showdata){
 		   g.setColor(Color.BLUE);
@@ -672,16 +784,12 @@ public class Figure extends JPanel{
 		   g.setStroke(new BasicStroke(10));
 		   }
 		   g.setColor(Color.GREEN);
-		   switch(sel_ind){
-		   case -4: g.drawLine(y_cal.x, y_cal.y, y_cal.x, y_cal.y);break;
-		   case -3: g.drawLine(x_cal.x, x_cal.y, x_cal.x, x_cal.y);break;
-		   case -2: g.drawLine(origin.x, origin.y, origin.x, origin.y);break;
-		   }
-		   if(sel_ind>=0)
-			   g.drawLine(data.get(sel_ind).x, data.get(sel_ind).y, data.get(sel_ind).x, data.get(sel_ind).y);
+		   if(selected!=null)
+			   g.drawLine(selected.x, selected.y, selected.x, selected.y);
 	   }
 	   
 	   public void export(){
+		   
 		   if(step<4)
 			   return;
 		   update_fit(1);
@@ -719,12 +827,24 @@ public class Figure extends JPanel{
 		   
 		   //map to new coordinate system
 		   float[][] output = new float[export.size()][2];
-		   
+		   float lm;
+		   float lb;
 		   for(int i = 0; i<export.size();i++){
 			   
-			   output[i][0] = (((float)(export.get(i)[0]-origin.x))/((float)(x_cal.x-origin.x)))*(x_ref-x_ori)+x_ori;
-			   output[i][1] = (((float)(export.get(i)[1]-origin.y))/((float)(y_cal.y-origin.y)))*(y_ref-y_ori)+y_ori;
-			   
+			   if(x_log){
+				   lm = (float) ((x_ref-x_ori)/(Math.log(x_cal.x)-Math.log(origin.x)));
+				   lb = (float) ((float) x_ref - lm*Math.log(x_cal.x));
+				   output[i][0] = (float) (lm*Math.log(export.get(i)[0])+lb);
+			   }
+			   else
+				   output[i][0] = (((float)(export.get(i)[0]-origin.x))/((float)(x_cal.x-origin.x)))*(x_ref-x_ori)+x_ori;
+			   if(y_log){
+				   lm = (float) ((y_ref-y_ori)/(Math.log(y_cal.y)-Math.log(origin.y)));
+				   lb = (float) ((float) y_ref - lm*Math.log(y_cal.y));
+				   output[i][0] = (float) (lm*Math.log(export.get(i)[1])+lb);
+			   }
+			   else
+				   output[i][1] = (((float)(export.get(i)[1]-origin.y))/((float)(y_cal.y-origin.y)))*(y_ref-y_ori)+y_ori;
 		   }
 		   
 		   FileDialog fd = new FileDialog(Board.frame, "Save", FileDialog.LOAD);

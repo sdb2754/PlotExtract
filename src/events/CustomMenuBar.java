@@ -144,7 +144,7 @@ public class CustomMenuBar extends JMenuBar implements ActionListener, ItemListe
 			Board.figure.export();
 			break;
 		case "About":
-			JOptionPane.showMessageDialog(Board.frame, "PlotExtract\nBy Seth Berry.\nvs. 1.2\nExtracts data from plots and figures.");
+			JOptionPane.showMessageDialog(Board.frame, "PlotExtract\nBy Seth Berry.\nvs. 1.3\nExtracts data from plots and figures.");
 			break;
 		case "Controls":
 			JOptionPane.showMessageDialog(Board.frame, 
@@ -154,7 +154,7 @@ public class CustomMenuBar extends JMenuBar implements ActionListener, ItemListe
 					+ "Follow the instructions at the bottom of the window\n"
 					+ "to add calibration points. Click an axis calibration\n"
 					+ "point to see an option tochange that axis to a log\n"
-					+ " axis (not working in vs. 1.2).\n\n"
+					+ " axis (not working in vs. 1.3).\n\n"
 					+ "Rightclick a point to see a list of actions you can perform on it.\n"
 					+ "Leftclick a point enable moving it.\n"
 					+ "Move a point using the arrow keys.\n\n"
