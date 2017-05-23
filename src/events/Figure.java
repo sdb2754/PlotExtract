@@ -33,8 +33,8 @@ public class Figure extends JPanel{
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	public static final int x_dim = 1000;
-	   public static final int y_dim = 800;
+	public static final int x_dim = 1400;
+	   public static final int y_dim = 1000;
 	   
 	   private BufferedImage background= new BufferedImage(x_dim, y_dim, 2);
 	   public BufferedImage image = new BufferedImage(x_dim, y_dim, 2);
@@ -49,6 +49,8 @@ public class Figure extends JPanel{
 	   public boolean showfit=true;
 	   public boolean showxlog=true;
 	   public boolean showylog=true;
+	   
+	   int npoints;
 	   
 	   Point origin;
 	   Point x_cal;
@@ -108,13 +110,13 @@ public class Figure extends JPanel{
 			int h = image.getHeight();
 			int w = image.getWidth();
 			
-			int s;
+			float s;
 			
-			if(w/h>x_dim/y_dim)
-				s=x_dim/w;
+			if((float)w/h>(float)x_dim/y_dim)
+				s=(float)x_dim/((float)1.05*w);
 			else
-				s=y_dim/h;
-			
+				s=(float)y_dim/((float)1.05*h);
+			System.out.print(s+"\n");
 			AffineTransform at = new AffineTransform();
 	        at.translate(x_dim/2, y_dim/2);
 	        
@@ -125,6 +127,7 @@ public class Figure extends JPanel{
 	       
 	      return at;
 		}
+		
 	   
 	   public void addimage(){
 		   FileDialog fd = new FileDialog(Board.frame, "Open", FileDialog.LOAD);
@@ -392,7 +395,7 @@ public class Figure extends JPanel{
 			   {
 				   selected = data.get(i);
 				   if(isright){
-				   Object[] possibilities = {"move", "delete","fit","new","export"};
+				   Object[] possibilities = {"move", "delete","fit","new","export","coordinate"};
 				   s = (String)JOptionPane.showInputDialog(
 				                       Board.frame,
 				                       "What would you like to do to this point?:\n",
@@ -413,6 +416,8 @@ public class Figure extends JPanel{
 					   break;
 				   case "delete" :
 					   data.remove(i);
+					   selected = null;
+					   update_fit(10);
 					   break;
 				   case "fit" :
 					   Object[] fit_types = {"linear","connect", "spline","interp","none"};
@@ -428,6 +433,10 @@ public class Figure extends JPanel{
 					   break;
 				   case "new" :
 					   set_step(0);
+					   break;
+				   case "coordinate" :
+					   JOptionPane.showMessageDialog(Board.frame, 
+							   "Point coordinate: ("+get_x(data.get(i).x)+","+get_y(data.get(i).y)+")");
 					   break;
 				   }
 				   return true;
@@ -451,38 +460,41 @@ public class Figure extends JPanel{
 		   //check if (un)selecting a point
 		   if(select(x,y,isright))
 			   return;
+		   
+		   
 		   switch(step){
 		   case 0:
 			   addimage();
 			   break;
 		   case 1:
+			   set_step(2);
 			   origin = new Point(x,y);
 			   set_origin_location();
-			   set_step(2);
 			   break;
 		   case 2:
+			   set_step(3);
 			   x_cal = new Point(x,y);
 			   set_x_ref();
-			   set_step(3);
 			   break;
 		   case 3:
+			   set_step(4);
 			   y_cal = new Point(x,y);
 			   set_y_ref();
-			   set_step(4);
 			   break;
 		   case 4:
 			   data.add(new Point(x,y));
 			   update_fit(10);
 			   break;
 		   case 6:
+			   set_step(4);
 			   x_log_cal = new Point(x,y);
 			   set_x_log_ref();
-			   set_step(4);
+
 			   break;
 		   case 7:
+			   set_step(4);
 			   y_log_cal = new Point(x,y);
 			   set_y_log_ref();
-			   set_step(4);
 			   break;
 		   }
 	   }
@@ -587,7 +599,7 @@ public class Figure extends JPanel{
 			   break;
 		   case 4:
 			   data.clear();
-			   messages.setText("Click to add data points along the curve of interest.");
+			   messages.setText("Click to add data points along the curve of interest…Click ‘Fit’ to select curve fit.");
 			   break;
 		   case 6:
 			   messages.setText("Click a second known point on the Horizontal Axis.");
@@ -754,20 +766,19 @@ public class Figure extends JPanel{
 	   }
 	   
 	   private void draw_points(Graphics2D g){
-		   
 		   g.setStroke(new BasicStroke(10));
 		   g.setColor(Color.RED);
-		   if(step>=1&&showorigin){
+		   if(step>1&&showorigin){
 
 		   g.drawLine(origin.x, origin.y, origin.x, origin.y);
 		   }
 		   
-		   if(step>=2&&showx){
+		   if(step>2&&showx){
 		   g.drawLine(x_cal.x, x_cal.y, x_cal.x, x_cal.y);
 		   if(x_log&&showxlog)
 			   g.drawLine(x_log_cal.x, x_log_cal.y, x_log_cal.x, x_log_cal.y);
 		   }
-		   if(step>=3&&showy){
+		   if(step>3&&showy){
 		   g.drawLine(y_cal.x, y_cal.y, y_cal.x, y_cal.y);
 		   if(y_log&&showylog)
 			   g.drawLine(y_log_cal.x, y_log_cal.y, y_log_cal.x, y_log_cal.y);
@@ -790,9 +801,36 @@ public class Figure extends JPanel{
 	   
 	   public void export(){
 		   
+		   if(fit!="none"){
+		   try{
+			   npoints = Integer.parseInt(JOptionPane.showInputDialog(Board.frame,
+	                   "Enter number of interpolation points to export: ", null));
+	            }
+		   catch(RuntimeException e){
+			   npoints=data.size();
+	        }
+		   }
+		   
+		   String x_header;
+		   String y_header;
+		   try{
+			   x_header = JOptionPane.showInputDialog(Board.frame,
+	                   "Enter Horizontal Axis label: ", null);
+	            }
+		   catch(RuntimeException e){
+			   x_header="Abscissa";
+	        }
+		   try{
+			   y_header = JOptionPane.showInputDialog(Board.frame,
+	                   "Enter Vertical Axis label: ", null);
+	            }
+		   catch(RuntimeException e){
+			   y_header="Ordinate";
+	        }
+		   
 		   if(step<4)
 			   return;
-		   update_fit(1);
+		   update_fit((data.get(data.size()-1).x-data.get(0).x)/(npoints-1));
 		   ArrayList<int[]> export = new ArrayList<int[]>();
 		   int[] pnt=new int[2];
 		   switch(fit){
@@ -800,7 +838,7 @@ public class Figure extends JPanel{
 		   case "linear" :
 			   double m = ((double)(lin2.y-lin1.y))/((double)(lin2.x-lin1.x));
 			   int b = lin1.y;
-			   for(int i=data.get(0).x;i<=data.get(data.size()-1).x;i++){
+			   for(int i=data.get(0).x;i<=data.get(data.size()-1).x;i+=(data.get(data.size()-1).x-data.get(0).x)/(npoints-1)){
 				   pnt[0]=i;
 				   pnt[1] = (int) (m*i+b);
 				   export.add(pnt.clone());
@@ -837,14 +875,14 @@ public class Figure extends JPanel{
 				   output[i][0] = (float) (lm*Math.log(export.get(i)[0])+lb);
 			   }
 			   else
-				   output[i][0] = (((float)(export.get(i)[0]-origin.x))/((float)(x_cal.x-origin.x)))*(x_ref-x_ori)+x_ori;
+				   output[i][0] = get_x(export.get(i)[0]);
 			   if(y_log){
 				   lm = (float) ((y_ref-y_ori)/(Math.log(y_cal.y)-Math.log(origin.y)));
 				   lb = (float) ((float) y_ref - lm*Math.log(y_cal.y));
 				   output[i][0] = (float) (lm*Math.log(export.get(i)[1])+lb);
 			   }
 			   else
-				   output[i][1] = (((float)(export.get(i)[1]-origin.y))/((float)(y_cal.y-origin.y)))*(y_ref-y_ori)+y_ori;
+				   output[i][1] = get_y(export.get(i)[1]);
 		   }
 		   
 		   FileDialog fd = new FileDialog(Board.frame, "Save", FileDialog.LOAD);
@@ -855,6 +893,7 @@ public class Figure extends JPanel{
 				   path = path+".csv";
 			   BufferedWriter br = new BufferedWriter(new FileWriter(path));
 			   StringBuilder sb = new StringBuilder();
+			   sb.append(x_header+","+y_header+"\n");
 			   for (float[] element : output) {
 			    sb.append(Float.toString(element[0]));
 			    sb.append(",");
@@ -870,5 +909,11 @@ public class Figure extends JPanel{
 		   update_fit(10);
 	   }
 
+	   	private float get_x(int x){
+	   		return (((float)(x-origin.x))/((float)(x_cal.x-origin.x)))*(x_ref-x_ori)+x_ori;
+	   	}
+	   	private float get_y(int y){
+	   		return (((float)(y-origin.y))/((float)(y_cal.y-origin.y)))*(y_ref-y_ori)+y_ori;
+	   	}
 
 }
