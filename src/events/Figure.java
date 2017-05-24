@@ -41,6 +41,8 @@ public class Figure extends JPanel{
 	   private Graphics draw = image.getGraphics();
 	   Graphics2D g2d = (Graphics2D) draw;
 	   
+	   private AffineTransform at;
+	   
 	   public boolean showplot=true;
 	   public boolean  showorigin=true;
 	   public boolean showx=true;
@@ -55,12 +57,8 @@ public class Figure extends JPanel{
 	   Point origin;
 	   Point x_cal;
 	   Point y_cal;
-	   Point x_log_cal;
-	   Point y_log_cal;
 	   float x_ref;
 	   float y_ref;
-	   float x_log_ref;
-	   float y_log_ref;
 	   float x_ori=0;
 	   float y_ori=0;
 	   ArrayList<Point> data = new ArrayList<Point>();
@@ -91,12 +89,14 @@ public class Figure extends JPanel{
 		     Graphics2D g2 =(Graphics2D) g; 
 		     g.drawImage(background, 0, 0, null);
 		     if(showplot)
-		    	 g2.drawImage(image, scaleimage(),null);
+		    	 g2.drawImage(image, at,null);
 		     draw_fit(g2);
 		     draw_points(g2);
 		   }
 	   
 	   public Figure(){
+		   
+		   at = new AffineTransform();
 		   
 		   background.getGraphics().fillRect(0, 0, x_dim, y_dim);
 		   setLayout(new BorderLayout());
@@ -105,7 +105,9 @@ public class Figure extends JPanel{
 		   set_step(0);
 	   }
 	   
-		private AffineTransform scaleimage(){
+		private void scaleimage(){
+			
+			at.setToIdentity();
 			
 			int h = image.getHeight();
 			int w = image.getWidth();
@@ -113,19 +115,16 @@ public class Figure extends JPanel{
 			float s;
 			
 			if((float)w/h>(float)x_dim/y_dim)
-				s=(float)x_dim/((float)1.05*w);
+				s=(float)x_dim/((float)1.2*w);
 			else
-				s=(float)y_dim/((float)1.05*h);
-			System.out.print(s+"\n");
-			AffineTransform at = new AffineTransform();
+				s=(float)y_dim/((float)1.2*h);
+
 	        at.translate(x_dim/2, y_dim/2);
 	        
 	        //at.rotate(Math.toRadians(theta));
 	        at.scale(s, s);
 	        
 	       at.translate(-w/2, -h/2);
-	       
-	      return at;
 		}
 		
 	   
@@ -135,6 +134,7 @@ public class Figure extends JPanel{
 		   try {
 			   String path = fd.getDirectory()+fd.getFile();
 			    image = ImageIO.read(new File(path));
+		    	scaleimage();
 			    set_step(1);
 			} catch (IOException e) {
 				set_step(0);
@@ -156,6 +156,7 @@ public class Figure extends JPanel{
 	       try
 	       {
 	         image= (BufferedImage) transferable.getTransferData(DataFlavor.imageFlavor);
+	    	 scaleimage();
 	         set_step(1);
 	       }
 	       catch (UnsupportedFlavorException e)
@@ -182,7 +183,7 @@ public class Figure extends JPanel{
 	   
 	   private boolean select(int x, int y, boolean isright){
 		   //dist to origin
-		   String s;
+		   String s="";
 		   if(distance(origin,x,y)<10)
 		   {
 			   selected = origin;
@@ -260,11 +261,9 @@ public class Figure extends JPanel{
 				                       "linear");
 				   if(s=="log"){
 					   x_log=true;
-					   set_step(6);
 				   }
 				   else{
 					   x_log=false;
-					   x_log_cal= new Point(-1,-1);
 				   }
 				   break;
 			   }
@@ -312,79 +311,10 @@ public class Figure extends JPanel{
 				                       "linear");
 				   if(s=="log"){
 					   y_log=true;
-					   set_step(7);
 				   }
 				   else{
 					   y_log=false;
-					   y_log_cal = new Point(-1,-1);
 				   }
-				   break;
-			   }
-			   return true;
-		   }
-		   //dist to x_log_cal and y_log_cal
-		   if(distance(x_log_cal,x,y)<10&&x_log)
-		   {
-			   selected = x_log_cal;
-			   if(isright){
-			   Object[] possibilities = {"move", "place", "value","square"};
-			   s = (String)JOptionPane.showInputDialog(
-			                       Board.frame,
-			                       "What would you like to do to the X axis calibration point?:\n",
-			                       "Calibrate X axis",
-			                       JOptionPane.PLAIN_MESSAGE,
-			                       null,
-			                       possibilities,
-			                       "move");
-			   }
-			   else
-				   s="move";
-			   switch(s){
-			   case "move" :
-				   move = true;
-				   break;
-			   case "place" :
-				   set_step(6);
-				   break;
-			   case "value" :
-				   x_log_ref = Integer.parseInt(JOptionPane.showInputDialog(Board.frame,
-		                   "Enter known X value: ", null));
-				   break;
-			   case "square" :
-				   x_log_cal.setLocation(x_log_cal.x,origin.y);
-				   break;
-			   }
-			   return true;
-		   }
-		   if(distance(y_log_cal,x,y)<10&&y_log)
-		   {
-			   selected = y_log_cal;
-			   if(isright){
-			   Object[] possibilities = {"move", "place", "value","square"};
-			   s = (String)JOptionPane.showInputDialog(
-			                       Board.frame,
-			                       "What would you like to do to the Y axis calibration point?:\n",
-			                       "Calibrate Y axis",
-			                       JOptionPane.PLAIN_MESSAGE,
-			                       null,
-			                       possibilities,
-			                       "move");
-			   }
-			   else
-				   s="move";
-			   switch(s){
-			   case "move" :
-				   move = true;
-				   break;
-			   case "place" :
-				   set_step(7);
-				   break;
-			   case "value" :
-				   y_log_ref = Integer.parseInt(JOptionPane.showInputDialog(Board.frame,
-		                   "Enter known Y value: ", null));
-				   break;
-			   case "square" :
-				   y_log_cal.setLocation(origin.x,y_cal.y);
 				   break;
 			   }
 			   return true;
@@ -485,17 +415,6 @@ public class Figure extends JPanel{
 			   data.add(new Point(x,y));
 			   update_fit(10);
 			   break;
-		   case 6:
-			   set_step(4);
-			   x_log_cal = new Point(x,y);
-			   set_x_log_ref();
-
-			   break;
-		   case 7:
-			   set_step(4);
-			   y_log_cal = new Point(x,y);
-			   set_y_log_ref();
-			   break;
 		   }
 	   }
 	   
@@ -540,28 +459,7 @@ public class Figure extends JPanel{
 			   y_ref=1;
 	        }
 	   }
-	   
-	   private void set_x_log_ref(){
-		   try{
-			   x_log_ref = Integer.parseInt(JOptionPane.showInputDialog(Board.frame,
-	                   "Enter known X value: ", null));
-	            }
-		   catch(RuntimeException e){
-			   x_log_ref=1;
-	        }
-	   }
-	   
-	   private void set_y_log_ref(){
-		   try{
-			   y_log_ref = Integer.parseInt(JOptionPane.showInputDialog(Board.frame,
-	                   "Enter known Y value: ", null));
-	            }
-		   catch(RuntimeException e){
-			   y_log_ref=1;
-	        }
-	   }
-	   
-	   
+	    
 	   public void set_step(int i){
 		   switch(i){
 		   case 0:
@@ -569,8 +467,6 @@ public class Figure extends JPanel{
 			   origin=new Point(-1,-1);
 			   x_cal=new Point(-1,-1);
 			   y_cal=new Point(-1,-1);
-			   x_log_cal=new Point(-1,-1);
-			   y_log_cal=new Point(-1,-1);
 			   image = new BufferedImage(x_dim, y_dim, 2);
 			   messages.setText("Click the plot area to add an image of a graph or plot, or paste one in.");
 			   break;
@@ -579,22 +475,17 @@ public class Figure extends JPanel{
 			   origin=new Point(-1,-1);
 			   x_cal=new Point(-1,-1);
 			   y_cal=new Point(-1,-1);
-			   x_log_cal=new Point(-1,-1);
-			   y_log_cal=new Point(-1,-1);
 			   messages.setText("Click the origin of the Plot/Graph.");
 			   break;
 		   case 2:
 			   data.clear();
 			   x_cal=new Point(-1,-1);
 			   y_cal=new Point(-1,-1);
-			   x_log_cal=new Point(-1,-1);
-			   y_log_cal=new Point(-1,-1);
 			   messages.setText("Click a known point on the Horizontal axis.");
 			   break;
 		   case 3:
 			   data.clear();
 			   y_cal=new Point(-1,-1);
-			   y_log_cal=new Point(-1,-1);
 			   messages.setText("Click a known point on the Vertical axis.");
 			   break;
 		   case 4:
@@ -775,13 +666,9 @@ public class Figure extends JPanel{
 		   
 		   if(step>2&&showx){
 		   g.drawLine(x_cal.x, x_cal.y, x_cal.x, x_cal.y);
-		   if(x_log&&showxlog)
-			   g.drawLine(x_log_cal.x, x_log_cal.y, x_log_cal.x, x_log_cal.y);
 		   }
 		   if(step>3&&showy){
 		   g.drawLine(y_cal.x, y_cal.y, y_cal.x, y_cal.y);
-		   if(y_log&&showylog)
-			   g.drawLine(y_log_cal.x, y_log_cal.y, y_log_cal.x, y_log_cal.y);
 		   }
 		   if(step>=4&&showdata){
 		   g.setColor(Color.BLUE);
@@ -875,14 +762,14 @@ public class Figure extends JPanel{
 				   output[i][0] = (float) (lm*Math.log(export.get(i)[0])+lb);
 			   }
 			   else
-				   output[i][0] = get_x(export.get(i)[0]);
+				   output[i][0] = (float) get_x(export.get(i)[0]);
 			   if(y_log){
 				   lm = (float) ((y_ref-y_ori)/(Math.log(y_cal.y)-Math.log(origin.y)));
 				   lb = (float) ((float) y_ref - lm*Math.log(y_cal.y));
 				   output[i][0] = (float) (lm*Math.log(export.get(i)[1])+lb);
 			   }
 			   else
-				   output[i][1] = get_y(export.get(i)[1]);
+				   output[i][1] = (float) get_y(export.get(i)[1]);
 		   }
 		   
 		   FileDialog fd = new FileDialog(Board.frame, "Save", FileDialog.LOAD);
@@ -903,17 +790,32 @@ public class Figure extends JPanel{
 			   br.write(sb.toString());
 			   br.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		   update_fit(10);
 	   }
 
-	   	private float get_x(int x){
-	   		return (((float)(x-origin.x))/((float)(x_cal.x-origin.x)))*(x_ref-x_ori)+x_ori;
+	   	private double get_x(int x){
+	   		double m,b;
+	   		if(x_log){
+		   		m = ((Math.log10(x_ref)-Math.log10(x_ori))/(x_cal.x-origin.x));
+	   			b = (Math.log10(x_ref) - m*x_cal.x);
+	   			return Math.pow(10, m*x+b);	
+	   		}
+	   		m = (x_ref-x_ori)/(x_cal.x-origin.x);
+   			b = x_ref - m*x_cal.x;
+   			return m*x+b;
 	   	}
-	   	private float get_y(int y){
-	   		return (((float)(y-origin.y))/((float)(y_cal.y-origin.y)))*(y_ref-y_ori)+y_ori;
+	   	private double get_y(int y){
+	   		double m,b;
+	   		if(y_log){
+		   		m = ((Math.log10(y_ref)-Math.log10(y_ori))/(y_cal.y-origin.y));
+	   			b = (Math.log10(y_ref) - m*y_cal.y);
+	   			return Math.pow(10, m*y+b);  			
+	   		}
+	   		m = (y_ref-y_ori)/(y_cal.y-origin.y);
+   			b = y_ref - m*y_cal.y;
+   			return m*y+b;
 	   	}
 
 }

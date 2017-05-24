@@ -144,7 +144,7 @@ public class CustomMenuBar extends JMenuBar implements ActionListener, ItemListe
 			Board.figure.export();
 			break;
 		case "About":
-			JOptionPane.showMessageDialog(Board.frame, "PlotExtract\nBy Seth Berry.\nvs. 1.4\nExtracts data from plots and figures.");
+			JOptionPane.showMessageDialog(Board.frame, "PlotExtract\nBy Seth Berry.\nvs. 1.5\nExtracts data from plots and figures.");
 			break;
 		case "Controls":
 			JOptionPane.showMessageDialog(Board.frame, 
@@ -153,18 +153,14 @@ public class CustomMenuBar extends JMenuBar implements ActionListener, ItemListe
 					+ " or click the plot area to add a picture from a file.\n\n"
 					+ "Follow the instructions at the bottom of the window\n"
 					+ "to add calibration points. Click an axis calibration\n"
-					+ "point to see an option tochange that axis to a log\n"
-					+ " axis (not working in vs. 1.4).\n\n"
+					+ "point to see an option tochange that axis to a log axis.\n\n"
 					+ "Rightclick a point to see a list of actions you can perform on it.\n"
 					+ "Leftclick a point enable moving it.\n"
 					+ "Move a point using the arrow keys.\n\n"
 					+ "Change the fit type by clicking a datapoint and selecting 'fit'\n"
 					+ "Export by using File+Export or clicking a datapoint\n"
 					+ "and selecting 'Export'.\n\n"
-					+ "Datapoints can be moved or deleted.\n\n"
-					+ "There is an issue with moving datapoints past other datapoints.\n"
-					+ "If you move a point passed another one, the current\n"
-					+ "selection will switch to the other point.");
+					+ "Datapoints can be moved or deleted.");
 			break;
 		}
 	}
