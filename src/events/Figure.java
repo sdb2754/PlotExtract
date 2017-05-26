@@ -41,6 +41,8 @@ public class Figure extends JPanel{
 	   private Graphics draw = image.getGraphics();
 	   Graphics2D g2d = (Graphics2D) draw;
 	   
+	   String formula;
+	   
 	   private AffineTransform at;
 	   
 	   public boolean showplot=true;
@@ -79,10 +81,8 @@ public class Figure extends JPanel{
 	   Point lin1=new Point(0,0);
 	   Point lin2=new Point(0,0);
 	   
-	   ArrayList<int[]> interp = new ArrayList<int[]>();
-	   int int_ord=0;
-	   
-	   ArrayList<int[]> spline = new ArrayList<int[]>();
+	   ArrayList<int[]> fitdata = new ArrayList<int[]>();
+	   int order=3;
 	
 	   public void paintComponent(Graphics g) {
 		     super.paintComponent(g);
@@ -350,7 +350,7 @@ public class Figure extends JPanel{
 					   update_fit(10);
 					   break;
 				   case "fit" :
-					   Object[] fit_types = {"linear","connect", "spline","interp","none"};
+					   Object[] fit_types = {"linear","connect", "spline","interp","regression","none"};
 					   s = (String)JOptionPane.showInputDialog(
 					                       Board.frame,
 					                       "Select fit type:\n",
@@ -382,6 +382,17 @@ public class Figure extends JPanel{
 	   }
 	   
 	   public void set_fit(String s){
+		   if(s=="regression"){
+			   try{
+				   order = Integer.parseInt(JOptionPane.showInputDialog(Board.frame,
+		                   "Enter regression order: ", null));
+				   if(order<1)
+					   order=1;
+		            }
+			   catch(RuntimeException e){
+				   order=3;
+		        }
+		   }
 		   fit = s;
 		   update_fit(10);
 	   }
@@ -490,7 +501,7 @@ public class Figure extends JPanel{
 			   break;
 		   case 4:
 			   data.clear();
-			   messages.setText("Click to add data points along the curve of interest…Click ‘Fit’ to select curve fit.");
+			   messages.setText("Click to add data points along the curve of interest…Then click ‘Fit’ to select curve fit.");
 			   break;
 		   case 6:
 			   messages.setText("Click a second known point on the Horizontal Axis.");
@@ -524,7 +535,7 @@ public class Figure extends JPanel{
 	   }
 	   
 	   private void sort_data(){
-		// Sorting
+		//Sorting
 		   Collections.sort(data, new Comparator<Point>() {
 				@Override
 				public int compare(Point p1, Point p2) {
@@ -567,7 +578,7 @@ public class Figure extends JPanel{
 		   break;
 		   case "interp" :
 		   //interpolation
-		   interp.clear();
+		   fitdata.clear();
 		   p=0;
 		   double pi;
 		   for(int x=xa;x<xb+dx;x+=dx){
@@ -583,7 +594,7 @@ public class Figure extends JPanel{
 			   }
 			   pnt[0]=x;
 			   pnt[1]=(int) p;
-			   interp.add(pnt.clone());
+			   fitdata.add(pnt.clone());
 		   }
 		   break;
 		   case "spline" :
@@ -608,7 +619,7 @@ public class Figure extends JPanel{
 			   Matrix A = new Matrix(M);
 			   Matrix B = new Matrix(bv);
 			   Matrix D = A.solve(B);
-			   spline.clear();
+			   fitdata.clear();
 			   int pc = 0;
 			   double t=0;
 			   long c;
@@ -622,8 +633,34 @@ public class Figure extends JPanel{
 				   c= (int) (3*(data.get(pc+1).y-data.get(pc).y) - 2*D.get(pc, 0) - D.get(pc+1, 0));
 				   d = (int) (2*(data.get(pc).y-data.get(pc+1).y) + D.get(pc, 0) + D.get(pc+1, 0));
 				   pnt[1] = (int) (data.get(pc).y + D.get(pc, 0) * t + c*Math.pow(t, 2) + d*Math.pow(t, 3));
-				   System.out.print("x:"+pnt[0]+" y:"+pnt[1]+"\n");
-				   spline.add(pnt.clone());
+				   fitdata.add(pnt.clone());
+			   }
+			   break;
+			   //polynomial regression
+		   case "regression":
+			   int k=order+1;
+			   double[][] Y = new double[n][1];
+			   double[][] X = new double[n][k];
+			   for(int i=0;i<n;i++){ 
+				   Y[i][0] = data.get(i).y;
+				   for(int j=0;j<k;j++){		   
+					   X[i][j] = Math.pow(data.get(i).x, j);
+				   }
+			   }
+			   Matrix mY = new Matrix(Y);
+			   Matrix mX = new Matrix(X);
+			   Matrix ma = ((mX.transpose().times(mX)).solve((mX.transpose().times(mY))));
+			   fitdata.clear();
+			   int[] result = new int[2];
+			   double sum = 0;
+			   for(int x=xa;x<xb;x+=dx){
+				   for(int j=0;j<k;j++){
+					   sum+=ma.get(j,0)*Math.pow(x, j);
+				   }
+				   result[0]=x;
+				   result[1]=(int) sum;
+				   fitdata.add(result.clone());
+				   sum=0;
 			   }
 			   break;
 		   }
@@ -644,13 +681,10 @@ public class Figure extends JPanel{
 			   }
 			   break;
 		   case "interp" :
-			   for(int i=1;i<interp.size();i++){
-				   g.drawLine(interp.get(i-1)[0], interp.get(i-1)[1], interp.get(i)[0], interp.get(i)[1]);
-			   }
-			   break;
 		   case "spline" :
-			   for(int i=1;i<spline.size();i++){
-				   g.drawLine(spline.get(i-1)[0], spline.get(i-1)[1], spline.get(i)[0], spline.get(i)[1]);
+		   case "regression" :
+			   for(int i=1;i<fitdata.size();i++){
+				   g.drawLine(fitdata.get(i-1)[0], fitdata.get(i-1)[1], fitdata.get(i)[0], fitdata.get(i)[1]);
 			   }
 			   break;
 		   }
@@ -732,12 +766,10 @@ public class Figure extends JPanel{
 			   }
 			   break;
 			   
-		   case "spline" :
-			   export = spline;
-			   break;
-			   
+		   case "spline" :		   
 		   case "interp" :
-			   export = interp;
+		   case "regression" :
+			   export = fitdata;
 			   break;
 			   
 		   case "none" :
@@ -752,24 +784,9 @@ public class Figure extends JPanel{
 		   
 		   //map to new coordinate system
 		   float[][] output = new float[export.size()][2];
-		   float lm;
-		   float lb;
 		   for(int i = 0; i<export.size();i++){
-			   
-			   if(x_log){
-				   lm = (float) ((x_ref-x_ori)/(Math.log(x_cal.x)-Math.log(origin.x)));
-				   lb = (float) ((float) x_ref - lm*Math.log(x_cal.x));
-				   output[i][0] = (float) (lm*Math.log(export.get(i)[0])+lb);
-			   }
-			   else
 				   output[i][0] = (float) get_x(export.get(i)[0]);
-			   if(y_log){
-				   lm = (float) ((y_ref-y_ori)/(Math.log(y_cal.y)-Math.log(origin.y)));
-				   lb = (float) ((float) y_ref - lm*Math.log(y_cal.y));
-				   output[i][0] = (float) (lm*Math.log(export.get(i)[1])+lb);
-			   }
-			   else
-				   output[i][1] = (float) get_y(export.get(i)[1]);
+				   output[i][0] = (float) get_y(export.get(i)[1]);
 		   }
 		   
 		   FileDialog fd = new FileDialog(Board.frame, "Save", FileDialog.LOAD);

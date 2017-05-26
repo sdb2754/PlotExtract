@@ -46,6 +46,7 @@ public class CustomMenuBar extends JMenuBar implements ActionListener, ItemListe
 	   JRadioButtonMenuItem interp;
 	   JRadioButtonMenuItem spline;
 	   JRadioButtonMenuItem connect;
+	   JRadioButtonMenuItem regression;
 	   JRadioButtonMenuItem none;
 	   
 	   CustomMenuBar(){
@@ -105,21 +106,25 @@ public class CustomMenuBar extends JMenuBar implements ActionListener, ItemListe
 		     interp = new JRadioButtonMenuItem("Interpolation",false);
 		     spline = new JRadioButtonMenuItem("Spline",false);
 		     connect = new JRadioButtonMenuItem("Connect",false);
+		     regression = new JRadioButtonMenuItem("Regression",false);
 		     none = new JRadioButtonMenuItem("None",true);
 		     fittype.add(linear);
 		     fittype.add(interp);
 		     fittype.add(spline);
 		     fittype.add(connect);
+		     fittype.add(regression);
 		     fittype.add(none);
 		     linear.addItemListener(this);
 		     interp.addItemListener(this);
 		     spline.addItemListener(this);
 		     connect.addItemListener(this);
+		     regression.addActionListener(this);
 		     none.addItemListener(this);
 		     group.add(linear);
 		     group.add(interp);
 		     group.add(spline);
 		     group.add(connect);
+		     group.add(regression);
 		     group.add(none);
 	   }
 
@@ -162,6 +167,10 @@ public class CustomMenuBar extends JMenuBar implements ActionListener, ItemListe
 					+ "and selecting 'Export'.\n\n"
 					+ "Datapoints can be moved or deleted.");
 			break;
+	    case "Regression":
+	    	Board.figure.set_fit("regression");
+	    	break;
+			
 		}
 	}
 
@@ -210,7 +219,8 @@ public class CustomMenuBar extends JMenuBar implements ActionListener, ItemListe
 	    	break;
 	    	
 	    case "Connect":
-	    	Board.figure.set_fit("connect");
+	    	if(state)
+	    		Board.figure.set_fit("connect");
 	    	break;
 	    	
 	    case "None":
