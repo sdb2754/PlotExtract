@@ -85,16 +85,16 @@ public void keyPressed(KeyEvent e) {
 	switch(e.getKeyCode()){
 	
 	case KeyEvent.VK_UP: 
-		figure.movepoint("up");
+		figure.movepoint(0,-1);
 		break;
 	case KeyEvent.VK_DOWN: 
-		figure.movepoint("down");
+		figure.movepoint(0,1);
 		break;
 	case KeyEvent.VK_LEFT: 
-		figure.movepoint("left");
+		figure.movepoint(-1,0);
 		break;
 	case KeyEvent.VK_RIGHT: 
-		figure.movepoint("right");
+		figure.movepoint(1,0);
 		break;
 		
 	
