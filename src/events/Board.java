@@ -8,8 +8,10 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.util.function.Consumer;
 
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
@@ -75,12 +77,90 @@ public class Board extends JPanel implements MouseMotionListener, MouseListener,
      
      ribbon = new CustomMenuBar();
      add(ribbon,BorderLayout.NORTH);
-
+     configure_menu();
    }
 
   private static void update(int dt)
   {
 
+  }
+  
+  private void configure_menu(){
+	   //Menus
+	  ribbon.add_item("File","bar","menu");
+	  ribbon.add_item("Edit","bar","menu");
+	  ribbon.add_item("Help","bar","menu");
+	  ribbon.add_item("Layers","bar","menu");
+	  ribbon.add_item("Fit","bar","menu");
+	   
+	   //Items
+	  ribbon.add_item("Reset","File","item");
+	  ribbon.add_item("Open","File","item");
+	  ribbon.add_item("Export","File","item");
+	  ribbon.add_item("Paste","Edit","item");
+	  ribbon.add_item("Copy","Edit","item");
+	  ribbon.add_item("About","Help","item");
+	  ribbon.add_item("Controls","Help","item");
+	   
+	   //Checkboxes
+	  ribbon.add_item("Original plot","Layers","check");
+	  ribbon.add_item("Origin","Layers","check");
+	  ribbon.add_item("X calibration","Layers","check");
+	  ribbon.add_item("Y calibration","Layers","check");
+	  ribbon.add_item("Data points","Layers","check");
+	  ribbon.add_item("Fit","Layers","check");
+	   
+	   //radiobuttons
+	  ribbon.add_item("radios","bar","group");
+	  ribbon.add_item("Linear","Fit","radio","radios");
+	  ribbon.add_item("Interpolation","Fit","radio","radios");
+	  ribbon.add_item("Spline","Fit","radio","radios");
+	  ribbon.add_item("Connect","Fit","radio","radios");
+	  ribbon.add_item("Regression","Fit","radio","radios");
+	  ribbon.add_item("None","Fit","radio","radios");
+	  
+	  //actions
+	  ribbon.set_action("Reset",  (y) -> {figure.set_step(0);});
+	  ribbon.set_action("Open",  (y) -> {figure.addimage();});
+	  ribbon.set_action("Paste",  (y) -> {if(tabbedPane.getSelectedIndex()==0)figure.getImageFromClipboard();});
+	  ribbon.set_action("Copy",  (y) -> {if(tabbedPane.getSelectedIndex()==1)table.copytoClipboard();});
+	  ribbon.set_action("Export",  (y) -> {figure.export();});
+	  ribbon.set_action("About",  (y) -> {about();});
+	  ribbon.set_action("Controls",  (y) -> {controls();});
+	  ribbon.set_action("Regression",  (y) -> {if(y)figure.set_fit("regression");});
+	  
+	  //state changes
+	  ribbon.set_action("Original plot",  (y) -> {figure.showplot=y;});
+	  ribbon.set_action("Fit",  (y) -> {figure.showfit=y;});
+	  ribbon.set_action("Origin",  (y) -> {figure.showorigin=y;});
+	  ribbon.set_action("X calibration",  (y) -> {figure.showx=y;});
+	  ribbon.set_action("Y calibration",  (y) -> {figure.showy=y;});
+	  ribbon.set_action("Data points",  (y) -> {figure.showdata=y;});
+	  ribbon.set_action("Linear",  (y) -> {if(y)figure.set_fit("linear");});
+	  ribbon.set_action("Interpolation",  (y) -> {if(y)figure.set_fit("interp");});
+	  ribbon.set_action("Spline",  (y) -> {if(y)figure.set_fit("spline");});
+	  ribbon.set_action("Connect",  (y) -> {if(y)figure.set_fit("connect");});
+	  ribbon.set_action("None",  (y) -> {if(y)figure.set_fit("none");});
+  }
+  
+  public void about(){
+	  JOptionPane.showMessageDialog(Board.frame, "PlotExtract\nBy Seth Berry.\nvs. 1.6\nExtracts data from plots and figures.");
+  }
+  public void controls(){
+	  JOptionPane.showMessageDialog(Board.frame, 
+				"To begin, add a plot, graph, figure, etc.\n"
+				+ "You can use File+Paste, cntrl+v,\n"
+				+ " or click the plot area to add a picture from a file.\n\n"
+				+ "Follow the instructions at the bottom of the window\n"
+				+ "to add calibration points. Click an axis calibration\n"
+				+ "point to see an option tochange that axis to a log axis.\n\n"
+				+ "Rightclick a point to see a list of actions you can perform on it.\n"
+				+ "Leftclick a point enable moving it.\n"
+				+ "Move a point using the arrow keys.\n\n"
+				+ "Change the fit type by clicking a datapoint and selecting 'fit'\n"
+				+ "Export by using File+Export or clicking a datapoint\n"
+				+ "and selecting 'Export'.\n\n"
+				+ "Datapoints can be moved or deleted.");
   }
 
 @Override

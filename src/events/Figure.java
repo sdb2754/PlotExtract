@@ -145,6 +145,7 @@ public class Figure extends JPanel{
 				set_step(0);
 				 e.printStackTrace();
 			}
+		   set_step(1);
 	   }
 	   
 	   /**
@@ -179,6 +180,7 @@ public class Figure extends JPanel{
 	     {
 	       set_step(0);
 	     }
+	     set_step(1);
 	     return;
 	   }
 	   
@@ -835,7 +837,7 @@ public class Figure extends JPanel{
 		   return (data.get(data.size()-1).x-data.get(0).x)/(npoints-1);
 	   }
 	   
-	   private void get_headers(){
+	   void get_headers(){
 		   
 		   try{
 			   x_header = JOptionPane.showInputDialog(Board.frame,
