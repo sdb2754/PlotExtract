@@ -24,6 +24,7 @@ public class CustomMenuBar extends JMenuBar implements ActionListener, ItemListe
 	ButtonGroup group = new ButtonGroup();
 	
 	   JMenu file;
+	   JMenu edit;
 	   JMenu help;
 	   JMenu layers;
 	   JMenu fittype;
@@ -31,6 +32,7 @@ public class CustomMenuBar extends JMenuBar implements ActionListener, ItemListe
 	   JMenuItem new_plot;
 	   JMenuItem open;
 	   JMenuItem paste;
+	   JMenuItem copy;
 	   JMenuItem export;
 	   JMenuItem about;
 	   JMenuItem controls;
@@ -51,30 +53,37 @@ public class CustomMenuBar extends JMenuBar implements ActionListener, ItemListe
 	   
 	   CustomMenuBar(){
 		     file = new JMenu("File");
+		     edit = new JMenu("Edit");
 		     help = new JMenu("Help");
 		     layers = new JMenu("Layers");
 		     fittype = new JMenu("Fit");
 		     add(file);
+		     add(edit);
 		     add(fittype);
 		     add(layers);
 		     add(help);
 		     file.addActionListener(this);
+		     edit.addActionListener(this);
 		     help.addActionListener(this);
 		     layers.addActionListener(this);
 		     fittype.addActionListener(this);
 		     
 		     new_plot = new JMenuItem("New");
 		     open = new JMenuItem("Open");
-		     paste = new JMenuItem("Paste");
 		     export = new JMenuItem("Export");
 		     file.add(new_plot);
 		     file.add(open);
-		     file.add(paste);
 		     file.add(export);
 		     new_plot.addActionListener(this);
 		     open.addActionListener(this);
-		     paste.addActionListener(this);
 		     export.addActionListener(this);
+		     
+		     paste = new JMenuItem("Paste");
+		     copy = new JMenuItem("Copy");
+		     edit.add(paste);
+		     edit.add(copy);
+		     paste.addActionListener(this);
+		     copy.addActionListener(this);
 		     
 		     about = new JMenuItem("About");
 		     controls = new JMenuItem("Controls");
@@ -142,14 +151,21 @@ public class CustomMenuBar extends JMenuBar implements ActionListener, ItemListe
 			Board.figure.set_step(1);
 			break;
 		case "Paste":
-			Board.figure.getImageFromClipboard();
-			Board.figure.set_step(1);
+			if(Board.tabbedPane.getSelectedIndex()==0){
+				Board.figure.getImageFromClipboard();
+				Board.figure.set_step(1);
+			}
+			break;
+		case "Copy":
+			if(Board.tabbedPane.getSelectedIndex()==1){
+				Board.table.copytoClipboard();
+			}
 			break;
 		case "Export":
 			Board.figure.export();
 			break;
 		case "About":
-			JOptionPane.showMessageDialog(Board.frame, "PlotExtract\nBy Seth Berry.\nvs. 1.5\nExtracts data from plots and figures.");
+			JOptionPane.showMessageDialog(Board.frame, "PlotExtract\nBy Seth Berry.\nvs. 1.6\nExtracts data from plots and figures.");
 			break;
 		case "Controls":
 			JOptionPane.showMessageDialog(Board.frame, 

@@ -34,7 +34,7 @@ public class Figure extends JPanel{
 	 */
 	private static final long serialVersionUID = 1L;
 	public static final int x_dim = 1400;
-	   public static final int y_dim = 1000;
+	public static final int y_dim = 1000;
 	   
 	   //drawing stuff
 	   private BufferedImage background= new BufferedImage(x_dim, y_dim, 2);
@@ -463,12 +463,55 @@ public class Figure extends JPanel{
 			   set_step(4);
 			   y_cal = new Point(x,y);
 			   set_y_ref();
+			   get_headers();
 			   break;
 		   case 4:
 			   data.add(new Point(x,y));
+
 			   update_fit(10);
 			   break;
 		   }
+		   update_table();
+	   }
+	   
+	   public void update_table(){
+		   
+		   Board.table.input("Plot Coordinates", 0, 1);
+		   Board.table.input("Mouse Coordinates", 0, 3);
+		   Board.table.input("Origin", 1, 0);
+		   Board.table.input("X Calibration", 2, 0);
+		   Board.table.input("Y Calibration", 3, 0);
+		   Board.table.input("Data", 4, 0);
+		   Board.table.input(x_header, 0, 5);
+		   Board.table.input(y_header, 0, 6);
+		   if(step>1){
+			   Board.table.input(x_ori+"", 1, 1);
+			   Board.table.input(y_ori+"", 1, 2);
+			   
+			   Board.table.input(origin.x+"", 1, 3);
+			   Board.table.input(origin.y+"", 1, 4);
+		   }
+		   if(step>2){
+			   Board.table.input(x_ref+"", 2, 1);
+			   Board.table.input(x_cal.x+"", 2, 3);
+		   }
+		   if(step>3){
+			   Board.table.input(y_ref+"", 3, 1);
+			   Board.table.input(y_cal.y+"", 3, 3);
+		   }
+		   for(int i=0;i<data.size();i++){
+			   Board.table.input(String.format("%.5g%n", get_y(data.get(i).x)), 4+i, 1);
+			   Board.table.input(String.format("%.5g%n", get_y(data.get(i).y)), 4+i, 2);
+			   
+			   Board.table.input(data.get(i).x+"", 4+i, 3);
+			   Board.table.input(data.get(i).y+"", 4+i, 4);
+		   }
+		   
+		   for(int i=0;i<fitdata.size();i++){
+			   Board.table.input(String.format("%.5g%n", get_y(fitdata.get(i).x)), 1+i, 5);
+			   Board.table.input(String.format("%.5g%n", get_y(fitdata.get(i).y)), 1+i, 6);
+		   }
+		   
 	   }
 	   
 	   private void set_origin_location(){
@@ -739,6 +782,7 @@ public class Figure extends JPanel{
 		   case "none":
 			   none_fit(dx);
 		   }
+		   update_table();
 	   }
 	   
 	   private void draw_fit(Graphics2D g){
@@ -750,6 +794,7 @@ public class Figure extends JPanel{
 	   }
 	   
 	   private void draw_points(Graphics2D g){
+		   
 		   g.setStroke(new BasicStroke(10));
 		   g.setColor(Color.RED);
 		   if(step>1&&showorigin){
@@ -815,9 +860,10 @@ public class Figure extends JPanel{
 		   
 		   if(fit!="none"){
 			   int npoints = get_npoints();
-			   get_headers();
-			   update_fit(npoints);
 		   }
+		   
+		   get_headers();
+		   update_fit(npoints);
 		   
 		   FileDialog fd = new FileDialog(Board.frame, "Save", FileDialog.LOAD);
 		   fd.setVisible(true);

@@ -11,6 +11,7 @@ import java.awt.event.MouseMotionListener;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 
 public class Board extends JPanel implements MouseMotionListener, MouseListener, KeyListener
  {
@@ -21,6 +22,9 @@ public class Board extends JPanel implements MouseMotionListener, MouseListener,
    
    CustomMenuBar ribbon;
    static Figure figure;
+   static Table table;
+   
+   static JTabbedPane tabbedPane = new JTabbedPane();
  
    public static void main(String[] args)
    {
@@ -59,8 +63,13 @@ public class Board extends JPanel implements MouseMotionListener, MouseListener,
      addKeyListener(this);
      
      figure = new Figure();
+     table = new Table(50,20);
      
-     add(figure, BorderLayout.CENTER);
+     add(tabbedPane,BorderLayout.CENTER);
+     
+     tabbedPane.add("Figure", figure);
+     tabbedPane.add("Table", table);
+
      figure.addMouseListener(this);
      figure.addMouseMotionListener(this);
      
@@ -78,7 +87,7 @@ public class Board extends JPanel implements MouseMotionListener, MouseListener,
 public void keyPressed(KeyEvent e) {
 	// TODO Auto-generated method stub
 	// TODO Auto-generated method stub
-	if ((e.getKeyCode() == KeyEvent.VK_V) && ((e.getModifiers() & KeyEvent.CTRL_MASK) != 0)) {
+	if ((e.getKeyCode() == KeyEvent.VK_V) && ((e.getModifiers() & KeyEvent.CTRL_MASK) != 0 && tabbedPane.getSelectedIndex()==0)) {
         figure.getImageFromClipboard();
         return;
     }
