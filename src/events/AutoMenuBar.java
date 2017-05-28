@@ -88,16 +88,10 @@ public class AutoMenuBar extends JMenuBar implements ActionListener, ItemListene
 
 		// Get the parent Component
 		Component cp = get(parent);
-		
-		//If not match was found, return
-		if (cp == null)
+
+		if (!is_valid_parent(cp))
 			return;
-		//If the type of parent isn't cMenu, then something went wrong
-		//Either a typo in the add_item call, or a redundant item name
-		//Return
-		if(!cp.getClass().equals(cMenu.class)&&cp != this)
-			return;
-		
+
 		switch (type) {
 
 		case "menu":
@@ -154,6 +148,25 @@ public class AutoMenuBar extends JMenuBar implements ActionListener, ItemListene
 		}
 	}
 
+	/*
+	 * Methods for adding groups of items Less capability, but can add a lot of
+	 * items at once Defines basic items with empty click actions and no initial
+	 * checked state
+	 */
+	// Add top-level menus to the MenuBar
+	public void add_top_menus(String[] names) {
+		for (String n : names) {
+			add_item(n, "bar", "menu");
+		}
+	}
+
+	// Add groups of items to a menu
+	public void add_items(String[][] def, String parent) {
+		for (String[] item : def) {
+			add_item(item[0], parent, item[1]);
+		}
+	}
+
 	// Set the click action for an item
 	public void set_action(String name, Consumer<Boolean> a) {
 
@@ -200,6 +213,47 @@ public class AutoMenuBar extends JMenuBar implements ActionListener, ItemListene
 		}
 	}
 
+	/*
+	 * Check if a given item is a valid parent, by name 
+	 * To be valid, it must:
+	 * Exist
+	 * Be either:
+	 * 			 The Menubar
+	 * or		 A cMenu type
+	 */
+	public boolean is_valid_parent(String p) {
+		return is_valid_parent(get(p));
+	}
+
+	public boolean is_valid_parent(Component p) {
+
+		// If no match was found, return
+		if (p == null)
+			return false;
+		// If the parent is the MenuBar
+		if (p == this)
+			return true;
+		// If the type of parent isn't cMenu, then something went wrong
+		// Either a typo in the add_item call, or a redundant item name
+		// Return
+		if (p.getClass().equals(cMenu.class))
+			return true;
+		// Not a valid parent
+		return false;
+	}
+	
+	//Get a list of all items
+	public ArrayList<Component> get_all(){
+		ArrayList<Component> list = new ArrayList<Component>();
+		//Add all top level menus
+		list.addAll(menus);
+		//Recursively add all items inside top level menus
+		for (cMenu cm : menus) {
+			list.addAll(cm.get_all());
+		}
+		return list;
+	}
+
 	// Get item by name
 	private Component get(String name) {
 
@@ -213,7 +267,7 @@ public class AutoMenuBar extends JMenuBar implements ActionListener, ItemListene
 		}
 		// Allocate an empty Component
 		Component cp = null;
-		// Recursively search menus inside top level menus
+		// Recursively search items inside top level menus
 		for (cMenu cm : menus) {
 			// Calls the "get" method for a menu item
 			cp = cm.get(name);
@@ -261,6 +315,20 @@ public class AutoMenuBar extends JMenuBar implements ActionListener, ItemListene
 			// Initialize action with an empty function
 			action = (y) -> {
 			};
+		}
+		//Get all items for this this menu is an ancestor
+		public ArrayList<Component> get_all(){
+			ArrayList<Component> list = new ArrayList<Component>();
+			//Add all items for which this menu is a parent
+			list.addAll(menus);
+			list.addAll(items);
+			list.addAll(checkboxes);
+			list.addAll(radiobuttons);
+			//Recursively search menus inside this
+			for (cMenu cm : menus) {
+				list.addAll(cm.get_all());
+			}
+			return list;
 		}
 
 		// Get member item by name
@@ -331,7 +399,10 @@ public class AutoMenuBar extends JMenuBar implements ActionListener, ItemListene
 		public void act(boolean b) {
 			action.accept(b);
 		}
-
+		@Override
+		public String getName(){
+			return name;
+		}
 	}
 
 	// Custom JMenuItem class
@@ -360,6 +431,11 @@ public class AutoMenuBar extends JMenuBar implements ActionListener, ItemListene
 		// Run click action
 		public void act(boolean b) {
 			action.accept(b);
+		}
+		
+		@Override
+		public String getName(){
+			return name;
 		}
 
 	}
@@ -399,6 +475,10 @@ public class AutoMenuBar extends JMenuBar implements ActionListener, ItemListene
 
 		public void state(boolean b) {
 			statechanged.accept(b);
+		}
+		@Override
+		public String getName(){
+			return name;
 		}
 	}
 
@@ -441,6 +521,10 @@ public class AutoMenuBar extends JMenuBar implements ActionListener, ItemListene
 
 		public void state(boolean b) {
 			statechanged.accept(b);
+		}
+		@Override
+		public String getName(){
+			return name;
 		}
 	}
 

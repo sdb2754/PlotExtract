@@ -20,8 +20,10 @@ import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
-public class Table extends JPanel implements MouseMotionListener, MouseListener, KeyListener{
+public class Table extends JPanel implements MouseMotionListener, MouseListener, KeyListener, DocumentListener{
 	
 	/**
 	 * 
@@ -114,6 +116,7 @@ public class Table extends JPanel implements MouseMotionListener, MouseListener,
 				cells[r][c].addMouseMotionListener(this);
 				cells[r][c].addMouseListener(this);
 				cells[r][c].addKeyListener(this);
+				cells[r][c].getDocument().addDocumentListener(this);
 			}
 		for(int r=0;r<nrows;r++){
 			rows[r] = new JTextArea();
@@ -236,6 +239,8 @@ public class Table extends JPanel implements MouseMotionListener, MouseListener,
 	}
 	
 	public void input(String s, int r, int c){
+		if(r>=nrows||c>=ncols)
+			return;
 		cells[r][c].setText(s);
 	}
 
@@ -360,6 +365,24 @@ public class Table extends JPanel implements MouseMotionListener, MouseListener,
 	public void keyTyped(KeyEvent e) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public void changedUpdate(DocumentEvent arg0) {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void insertUpdate(DocumentEvent arg0) {
+		// TODO Auto-generated method stub
+		
+		//DO stuff
+		System.out.print("insertUpdate\n");
+	}
+
+	@Override
+	public void removeUpdate(DocumentEvent arg0) {
+		// TODO Auto-generated method stub
 	}
 
 }

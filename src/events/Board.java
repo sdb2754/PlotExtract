@@ -1,6 +1,7 @@
 /*     */ package events;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
@@ -8,6 +9,8 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.util.ArrayList;
+
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -77,11 +80,8 @@ public class Board extends JPanel implements MouseMotionListener, MouseListener,
 
 	private void configure_menu() {
 		// Menus
-		ribbon.add_item("File", "bar", "menu");
-		ribbon.add_item("Edit", "bar", "menu");
-		ribbon.add_item("Help", "bar", "menu");
-		ribbon.add_item("Layers", "bar", "menu");
-		ribbon.add_item("Fit type", "bar", "menu");
+
+		ribbon.add_top_menus(new String[] { "File", "Edit", "Table", "Layers", "Fit type", "Help" });
 
 		// Items
 		ribbon.add_item("Reset", "File", "item");
@@ -93,13 +93,14 @@ public class Board extends JPanel implements MouseMotionListener, MouseListener,
 		ribbon.add_item("Controls", "Help", "item");
 
 		// Checkboxes
-		ribbon.add_item("Original plot", "Layers", "check",true);
-		ribbon.add_item("Origin", "Layers", "check",true);
-		ribbon.add_item("X calibration", "Layers", "check",true);
-		ribbon.add_item("Y calibration", "Layers", "check",true);
-		ribbon.add_item("Data points", "Layers", "check",true);
-		ribbon.add_item("Fit", "Layers", "check",true);
-
+		ribbon.add_item("Original plot", "Layers", "check", true);
+		ribbon.add_item("Origin", "Layers", "check", true);
+		ribbon.add_item("X calibration", "Layers", "check", true);
+		ribbon.add_item("Y calibration", "Layers", "check", true);
+		ribbon.add_item("Data points", "Layers", "check", true);
+		ribbon.add_item("Fit", "Layers", "check", true);
+		ribbon.add_item("Axes", "Layers", "check", true);
+		
 		// radiobuttons
 		ribbon.add_item("radios", "bar", "group");
 		ribbon.add_item("Linear", "Fit type", "radio", "radios");
@@ -107,7 +108,7 @@ public class Board extends JPanel implements MouseMotionListener, MouseListener,
 		ribbon.add_item("Spline", "Fit type", "radio", "radios");
 		ribbon.add_item("Connect", "Fit type", "radio", "radios");
 		ribbon.add_item("Regression", "Fit type", "radio", "radios");
-		ribbon.add_item("None", "Fit type", "radio", "radios",true);
+		ribbon.add_item("None", "Fit type", "radio", "radios", true);
 
 		// actions
 		ribbon.set_action("Reset", (y) -> {
@@ -156,6 +157,9 @@ public class Board extends JPanel implements MouseMotionListener, MouseListener,
 		});
 		ribbon.set_statechange("Data points", (y) -> {
 			figure.showdata = y;
+		});
+		ribbon.set_statechange("Axes", (y) -> {
+			figure.showaxes = y;
 		});
 		ribbon.set_action("Linear", (y) -> {
 			if (y)
