@@ -1,6 +1,8 @@
 package events;
 
+import java.awt.Color;
 import java.awt.Component;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -10,12 +12,52 @@ import java.util.function.Consumer;
 
 import javax.swing.AbstractButton;
 import javax.swing.ButtonGroup;
+import javax.swing.Icon;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JRadioButtonMenuItem;
 
+/*
+ * AutoMenuBar
+ * 
+ * This class is designed to make construction of menus easier.
+ * 
+ * Traditionally, constructing menus requires a lot of repetitive code.
+ * This class seeks to simplify the process of adding menus and items.
+ * 
+ * In this class, menus of arbitrary depth can be constructed.
+ * 
+ * Items are referenced by their display name, a String.
+ * 
+ * To add an item, use the following.
+ * 
+ * AutoMenuBar.add_item(String name, String parent, String type, String group, boolean checked, Consumer<Boolean> action);
+ * 
+ * or one of the variants.
+ * 
+ * String name: is the display name of the item
+ * 
+ * String parent: is the display name of the parent JMenu
+ * 
+ * String type: is the type of item. It can be:
+ * cMenu (extends JMenu)
+ * cItem (extends JItem)
+ * cRadio (extends JRadioButtonMenuItem) 
+ * cChecked (extends JCheckBoxMenuItem)
+ * 
+ * String group: is the ButtonGroup that a cRadio item is a member of
+ * 
+ * boolean checked: sets the initial state of checkboxes and radiobuttons
+ * 
+ * Consumer<Boolean> action: is a Consumer which represents a Function with a single boolean argument.
+ * This is assigned as follows:
+ * Consumer<Boolean> action = (b) -> {//Java code};
+ * 
+ * This function will be run when the item is clicked.
+ * 
+ */
 public class AutoMenuBar extends JMenuBar implements ActionListener, ItemListener {
 	private static final long serialVersionUID = 1L;
 
@@ -28,6 +70,10 @@ public class AutoMenuBar extends JMenuBar implements ActionListener, ItemListene
 	// Constructor
 	AutoMenuBar() {
 
+	}
+
+	AutoMenuBar(String[] names) {
+		add_top_menus(names);
 	}
 
 	// Methods for adding items
@@ -212,14 +258,109 @@ public class AutoMenuBar extends JMenuBar implements ActionListener, ItemListene
 			return;
 		}
 	}
+	
+	public void set_all_Background_colors(Color b){
+		for(Component c : get_all())
+			set_Background_color(c.getName(),b);
+	}
 
+	public void set_Background_color(String name, Color b) {
+		Component c = get(name);
+		if (c.getClass().equals(cMenu.class)) {
+			((cMenu) c).setBackground(b);
+			return;
+		}
+		if (c.getClass().equals(cItem.class)) {
+			((cItem) c).setBackground(b);
+			return;
+		}
+		if (c.getClass().equals(cCheck.class)) {
+			((cCheck) c).setBackground(b);
+			return;
+		}
+		if (c.getClass().equals(cRadio.class)) {
+			((cRadio) c).setBackground(b);
+			return;
+		}
+	}
+	
+	public void set_all_Foreground_Colors(Color f){
+		for(Component c : get_all())
+			set_Foreground_Color(c.getName(),f);
+	}
+
+	public void set_Foreground_Color(String name, Color f) {
+		Component c = get(name);
+		if (c.getClass().equals(cMenu.class)) {
+			((cMenu) c).setForeground(f);
+			return;
+		}
+		if (c.getClass().equals(cItem.class)) {
+			((cItem) c).setForeground(f);
+			return;
+		}
+		if (c.getClass().equals(cCheck.class)) {
+			((cCheck) c).setForeground(f);
+			return;
+		}
+		if (c.getClass().equals(cRadio.class)) {
+			((cRadio) c).setForeground(f);
+			return;
+		}
+	}
+	
+	public void set_all_Icons(Icon i){
+		for(Component c : get_all())
+			set_Icon(c.getName(),i);
+	}
+
+	public void set_Icon(String name, Icon i) {
+		Component c = get(name);
+		if (c.getClass().equals(cMenu.class)) {
+			((cMenu) c).setIcon(i);
+			return;
+		}
+		if (c.getClass().equals(cItem.class)) {
+			((cItem) c).setIcon(i);
+			return;
+		}
+		if (c.getClass().equals(cCheck.class)) {
+			((cCheck) c).setIcon(i);
+			return;
+		}
+		if (c.getClass().equals(cRadio.class)) {
+			((cRadio) c).setIcon(i);
+			return;
+		}
+	}
+	
+	public void set_all_Fonts(Font f){
+		for(Component c : get_all())
+			set_Font(c.getName(),f);
+	}
+
+	public void set_Font(String name, Font f) {
+		Component c = get(name);
+		if (c.getClass().equals(cMenu.class)) {
+			((cMenu) c).setFont(f);
+			return;
+		}
+		if (c.getClass().equals(cItem.class)) {
+			((cItem) c).setFont(f);
+			return;
+		}
+		if (c.getClass().equals(cCheck.class)) {
+			((cCheck) c).setFont(f);
+			return;
+		}
+		if (c.getClass().equals(cRadio.class)) {
+			((cRadio) c).setFont(f);
+			return;
+		}
+	}
 	/*
-	 * Check if a given item is a valid parent, by name 
-	 * To be valid, it must:
-	 * Exist
-	 * Be either:
-	 * 			 The Menubar
-	 * or		 A cMenu type
+	 * Check if a given item is a valid parent, by name To be valid, it must:
+	 * Exist Be either: The Menubar or A cMenu type
 	 */
 	public boolean is_valid_parent(String p) {
 		return is_valid_parent(get(p));
@@ -241,13 +382,13 @@ public class AutoMenuBar extends JMenuBar implements ActionListener, ItemListene
 		// Not a valid parent
 		return false;
 	}
-	
-	//Get a list of all items
-	public ArrayList<Component> get_all(){
+
+	// Get a list of all items
+	public ArrayList<Component> get_all() {
 		ArrayList<Component> list = new ArrayList<Component>();
-		//Add all top level menus
+		// Add all top level menus
 		list.addAll(menus);
-		//Recursively add all items inside top level menus
+		// Recursively add all items inside top level menus
 		for (cMenu cm : menus) {
 			list.addAll(cm.get_all());
 		}
@@ -316,15 +457,16 @@ public class AutoMenuBar extends JMenuBar implements ActionListener, ItemListene
 			action = (y) -> {
 			};
 		}
-		//Get all items for this this menu is an ancestor
-		public ArrayList<Component> get_all(){
+
+		// Get all items for this this menu is an ancestor
+		public ArrayList<Component> get_all() {
 			ArrayList<Component> list = new ArrayList<Component>();
-			//Add all items for which this menu is a parent
+			// Add all items for which this menu is a parent
 			list.addAll(menus);
 			list.addAll(items);
 			list.addAll(checkboxes);
 			list.addAll(radiobuttons);
-			//Recursively search menus inside this
+			// Recursively search menus inside this
 			for (cMenu cm : menus) {
 				list.addAll(cm.get_all());
 			}
@@ -399,8 +541,9 @@ public class AutoMenuBar extends JMenuBar implements ActionListener, ItemListene
 		public void act(boolean b) {
 			action.accept(b);
 		}
+
 		@Override
-		public String getName(){
+		public String getName() {
 			return name;
 		}
 	}
@@ -432,9 +575,9 @@ public class AutoMenuBar extends JMenuBar implements ActionListener, ItemListene
 		public void act(boolean b) {
 			action.accept(b);
 		}
-		
+
 		@Override
-		public String getName(){
+		public String getName() {
 			return name;
 		}
 
@@ -476,8 +619,9 @@ public class AutoMenuBar extends JMenuBar implements ActionListener, ItemListene
 		public void state(boolean b) {
 			statechanged.accept(b);
 		}
+
 		@Override
-		public String getName(){
+		public String getName() {
 			return name;
 		}
 	}
@@ -522,8 +666,9 @@ public class AutoMenuBar extends JMenuBar implements ActionListener, ItemListene
 		public void state(boolean b) {
 			statechanged.accept(b);
 		}
+
 		@Override
-		public String getName(){
+		public String getName() {
 			return name;
 		}
 	}

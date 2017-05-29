@@ -1,6 +1,7 @@
 /*     */ package events;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.InputEvent;
@@ -69,8 +70,6 @@ public class Board extends JPanel implements MouseMotionListener, MouseListener,
 		figure.addMouseListener(this);
 		figure.addMouseMotionListener(this);
 
-		ribbon = new AutoMenuBar();
-		add(ribbon, BorderLayout.NORTH);
 		configure_menu();
 	}
 
@@ -79,10 +78,9 @@ public class Board extends JPanel implements MouseMotionListener, MouseListener,
 	}
 
 	private void configure_menu() {
-		// Menus
-
-		ribbon.add_top_menus(new String[] { "File", "Edit", "Table", "Layers", "Fit type", "Help" });
-
+	
+		ribbon = new AutoMenuBar(new String[] { "File", "Edit", "Table", "Layers", "Fit type", "Help" });
+		add(ribbon, BorderLayout.NORTH);
 		// Items
 		ribbon.add_item("Reset", "File", "item");
 		ribbon.add_item("Open", "File", "item");
@@ -109,6 +107,8 @@ public class Board extends JPanel implements MouseMotionListener, MouseListener,
 		ribbon.add_item("Connect", "Fit type", "radio", "radios");
 		ribbon.add_item("Regression", "Fit type", "radio", "radios");
 		ribbon.add_item("None", "Fit type", "radio", "radios", true);
+		
+		
 
 		// actions
 		ribbon.set_action("Reset", (y) -> {
@@ -181,6 +181,7 @@ public class Board extends JPanel implements MouseMotionListener, MouseListener,
 			if (y)
 				figure.set_fit("none");
 		});
+		
 	}
 
 	public void about() {
