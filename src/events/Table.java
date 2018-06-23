@@ -375,9 +375,6 @@ public class Table extends JPanel implements MouseMotionListener, MouseListener,
 	@Override
 	public void insertUpdate(DocumentEvent arg0) {
 		// TODO Auto-generated method stub
-		
-		//DO stuff
-		System.out.print("insertUpdate\n");
 	}
 
 	@Override

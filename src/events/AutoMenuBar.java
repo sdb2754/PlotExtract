@@ -8,6 +8,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.function.Consumer;
 
 import javax.swing.AbstractButton;
@@ -73,7 +74,7 @@ public class AutoMenuBar extends JMenuBar implements ActionListener, ItemListene
 	}
 
 	AutoMenuBar(String[] names) {
-		add_top_menus(names);
+		addTopMenus(names);
 	}
 
 	// Methods for adding items
@@ -104,38 +105,38 @@ public class AutoMenuBar extends JMenuBar implements ActionListener, ItemListene
 	 * is called, then the code is executed
 	 * 
 	 */
-	public void add_item(String name, String parent, String type, String group) {
-		add_item(name, parent, type, group, false, (y) -> {
+	public void addItem(String name, String parent, String type, String group) {
+		addItem(name, parent, type, group, false, (y) -> {
 		});
 	}
 
-	public void add_item(String name, String parent, String type, String group, boolean checked) {
-		add_item(name, parent, type, group, checked, (y) -> {
+	public void addItem(String name, String parent, String type, String group, boolean checked) {
+		addItem(name, parent, type, group, checked, (y) -> {
 		});
 	}
 
-	public void add_item(String name, String parent, String type, Consumer<Boolean> action) {
-		add_item(name, parent, type, "none", false, action);
+	public void addItem(String name, String parent, String type, Consumer<Boolean> action) {
+		addItem(name, parent, type, "none", false, action);
 	}
 
-	public void add_item(String name, String parent, String type, boolean checked) {
-		add_item(name, parent, type, "none", checked, (y) -> {
+	public void addItem(String name, String parent, String type, boolean checked) {
+		addItem(name, parent, type, "none", checked, (y) -> {
 		});
 	}
 
-	public void add_item(String name, String parent, String type) {
-		add_item(name, parent, type, "none", false, (y) -> {
+	public void addItem(String name, String parent, String type) {
+		addItem(name, parent, type, "none", false, (y) -> {
 		});
 	}
 
 	// The main add_item method
-	public void add_item(String name, String parent, String type, String group, boolean checked,
+	public void addItem(String name, String parent, String type, String group, boolean checked,
 			Consumer<Boolean> action) {
 
 		// Get the parent Component
 		Component cp = get(parent);
 
-		if (!is_valid_parent(cp))
+		if (!isValidParent(cp))
 			return;
 
 		switch (type) {
@@ -151,24 +152,24 @@ public class AutoMenuBar extends JMenuBar implements ActionListener, ItemListene
 				// Add to top level menu list
 				menus.add(cm);
 				// Set the click action
-				cm.set_action(action);
+				cm.setAction(action);
 				return;
 			}
 			cMenu cm = new cMenu(name);
 			// Add the item to its parent
-			((cMenu) cp).add_item(cm, name, type, group);
+			((cMenu) cp).addItem(cm, name, type, group);
 			cm.addActionListener(this);
-			cm.set_action(action);
+			cm.setAction(action);
 			break;
 		case "item":
 			cItem ci = new cItem(name);
-			((cMenu) cp).add_item(ci, name, type, group);
+			((cMenu) cp).addItem(ci, name, type, group);
 			ci.addActionListener(this);
-			ci.set_action(action);
+			ci.setAction(action);
 			break;
 		case "radio":
 			cRadio cr = new cRadio(name);
-			((cMenu) cp).add_item(cr, name, type, group);
+			((cMenu) cp).addItem(cr, name, type, group);
 			cr.addActionListener(this);
 			cr.addItemListener(this);
 			// If the item should be added to a ButtonGroup
@@ -176,15 +177,15 @@ public class AutoMenuBar extends JMenuBar implements ActionListener, ItemListene
 				cr.group(group(group));
 			// Set initial check state
 			cr.setSelected(checked);
-			cr.set_action(action);
+			cr.setAction(action);
 			break;
 		case "check":
 			cCheck cc = new cCheck(name);
-			((cMenu) cp).add_item(cc, name, type, group);
+			((cMenu) cp).addItem(cc, name, type, group);
 			cc.addActionListener(this);
 			cc.addItemListener(this);
 			cc.setSelected(checked);
-			cc.set_action(action);
+			cc.setAction(action);
 			break;
 		case "group":
 			// Add a new ButtonGroup
@@ -200,21 +201,22 @@ public class AutoMenuBar extends JMenuBar implements ActionListener, ItemListene
 	 * checked state
 	 */
 	// Add top-level menus to the MenuBar
-	public void add_top_menus(String[] names) {
+	public void addTopMenus(String[] names) {
 		for (String n : names) {
-			add_item(n, "bar", "menu");
+			addItem(n, "bar", "menu");
 		}
 	}
 
 	// Add groups of items to a menu
 	public void add_items(String[][] def, String parent) {
 		for (String[] item : def) {
-			add_item(item[0], parent, item[1]);
+			addItem(item[0], parent, item[1]);
 		}
 	}
 
+
 	// Set the click action for an item
-	public void set_action(String name, Consumer<Boolean> a) {
+	public void setAction(String name, Consumer<Boolean> a) {
 
 		// Get the Component named "name"
 		Component c = get(name);
@@ -223,150 +225,151 @@ public class AutoMenuBar extends JMenuBar implements ActionListener, ItemListene
 			return;
 		// Must handle each type separately
 		// because the Component can only be cast to one type
-		if (c.getClass().equals(cMenu.class)) {
+		if (c instanceof cMenu) {
 			// Calls the set_action method for the menu item
-			((cMenu) c).set_action(a);
+			((cMenu) c).setAction(a);
 			return;
 		}
-		if (c.getClass().equals(cItem.class)) {
-			((cItem) c).set_action(a);
+		if (c instanceof cItem) {
+			((cItem) c).setAction(a);
 			return;
 		}
-		if (c.getClass().equals(cCheck.class)) {
-			((cCheck) c).set_action(a);
+		if (c instanceof cCheck) {
+			((cCheck) c).setAction(a);
 			return;
 		}
-		if (c.getClass().equals(cRadio.class)) {
-			((cRadio) c).set_action(a);
+		if (c instanceof cRadio) {
+			((cRadio) c).setAction(a);
 			return;
 		}
 	}
 
 	// Set the state changed action for an item
-	public void set_statechange(String name, Consumer<Boolean> a) {
+	public void setStateChange(String name, Consumer<Boolean> a) {
 
 		// Get the Component named "name"
 		Component c = get(name);
 		// Must handle each type separately
 		// because the Component can only be cast to one type
-		if (c.getClass().equals(cCheck.class)) {
-			((cCheck) c).set_statechanged(a);
+		if (c instanceof cCheck) {
+			((cCheck) c).setStateChanged(a);
 			return;
 		}
-		if (c.getClass().equals(cRadio.class)) {
-			((cRadio) c).set_statechanged(a);
+		if (c instanceof cRadio) {
+			((cRadio) c).setStateChanged(a);
 			return;
 		}
-	}
-	
-	public void set_all_Background_colors(Color b){
-		for(Component c : get_all())
-			set_Background_color(c.getName(),b);
 	}
 
-	public void set_Background_color(String name, Color b) {
+	public void setAllBackgroundColors(Color b) {
+		for (Component c : getAll())
+			setBackgroundColor(c.getName(), b);
+	}
+
+	public void setBackgroundColor(String name, Color b) {
 		Component c = get(name);
-		if (c.getClass().equals(cMenu.class)) {
+		if (c instanceof cMenu) {
 			((cMenu) c).setBackground(b);
 			return;
 		}
-		if (c.getClass().equals(cItem.class)) {
+		if (c instanceof cItem) {
 			((cItem) c).setBackground(b);
 			return;
 		}
-		if (c.getClass().equals(cCheck.class)) {
+		if (c instanceof cCheck) {
 			((cCheck) c).setBackground(b);
 			return;
 		}
-		if (c.getClass().equals(cRadio.class)) {
+		if (c instanceof cRadio) {
 			((cRadio) c).setBackground(b);
 			return;
 		}
 	}
-	
-	public void set_all_Foreground_Colors(Color f){
-		for(Component c : get_all())
-			set_Foreground_Color(c.getName(),f);
+
+	public void setAllForegroundColors(Color f) {
+		for (Component c : getAll())
+			setForegroundColor(c.getName(), f);
 	}
 
-	public void set_Foreground_Color(String name, Color f) {
+	public void setForegroundColor(String name, Color f) {
 		Component c = get(name);
-		if (c.getClass().equals(cMenu.class)) {
+		if (c instanceof cMenu) {
 			((cMenu) c).setForeground(f);
 			return;
 		}
-		if (c.getClass().equals(cItem.class)) {
+		if (c instanceof cItem) {
 			((cItem) c).setForeground(f);
 			return;
 		}
-		if (c.getClass().equals(cCheck.class)) {
+		if (c instanceof cCheck) {
 			((cCheck) c).setForeground(f);
 			return;
 		}
-		if (c.getClass().equals(cRadio.class)) {
+		if (c instanceof cRadio) {
 			((cRadio) c).setForeground(f);
 			return;
 		}
 	}
-	
-	public void set_all_Icons(Icon i){
-		for(Component c : get_all())
-			set_Icon(c.getName(),i);
+
+	public void setAllIcons(Icon i) {
+		for (Component c : getAll())
+			setIcon(c.getName(), i);
 	}
 
-	public void set_Icon(String name, Icon i) {
+	public void setIcon(String name, Icon i) {
 		Component c = get(name);
-		if (c.getClass().equals(cMenu.class)) {
+		if (c instanceof cMenu) {
 			((cMenu) c).setIcon(i);
 			return;
 		}
-		if (c.getClass().equals(cItem.class)) {
+		if (c instanceof cItem) {
 			((cItem) c).setIcon(i);
 			return;
 		}
-		if (c.getClass().equals(cCheck.class)) {
+		if (c instanceof cCheck) {
 			((cCheck) c).setIcon(i);
 			return;
 		}
-		if (c.getClass().equals(cRadio.class)) {
+		if (c instanceof cRadio) {
 			((cRadio) c).setIcon(i);
 			return;
 		}
 	}
-	
-	public void set_all_Fonts(Font f){
-		for(Component c : get_all())
-			set_Font(c.getName(),f);
+
+	public void setAllFonts(Font f) {
+		for (Component c : getAll())
+			setFont(c.getName(), f);
 	}
 
-	public void set_Font(String name, Font f) {
+	public void setFont(String name, Font f) {
 		Component c = get(name);
-		if (c.getClass().equals(cMenu.class)) {
+		if (c instanceof cMenu) {
 			((cMenu) c).setFont(f);
 			return;
 		}
-		if (c.getClass().equals(cItem.class)) {
+		if (c instanceof cItem) {
 			((cItem) c).setFont(f);
 			return;
 		}
-		if (c.getClass().equals(cCheck.class)) {
+		if (c instanceof cCheck) {
 			((cCheck) c).setFont(f);
 			return;
 		}
-		if (c.getClass().equals(cRadio.class)) {
+		if (c instanceof cRadio) {
 			((cRadio) c).setFont(f);
 			return;
 		}
 	}
+	
 	/*
 	 * Check if a given item is a valid parent, by name To be valid, it must:
 	 * Exist Be either: The Menubar or A cMenu type
 	 */
-	public boolean is_valid_parent(String p) {
-		return is_valid_parent(get(p));
+	public boolean isValidParent(String p) {
+		return isValidParent(get(p));
 	}
 
-	public boolean is_valid_parent(Component p) {
+	public boolean isValidParent(Component p) {
 
 		// If no match was found, return
 		if (p == null)
@@ -377,20 +380,20 @@ public class AutoMenuBar extends JMenuBar implements ActionListener, ItemListene
 		// If the type of parent isn't cMenu, then something went wrong
 		// Either a typo in the add_item call, or a redundant item name
 		// Return
-		if (p.getClass().equals(cMenu.class))
+		if (p instanceof cMenu)
 			return true;
 		// Not a valid parent
 		return false;
 	}
 
 	// Get a list of all items
-	public ArrayList<Component> get_all() {
+	public ArrayList<Component> getAll() {
 		ArrayList<Component> list = new ArrayList<Component>();
 		// Add all top level menus
 		list.addAll(menus);
 		// Recursively add all items inside top level menus
 		for (cMenu cm : menus) {
-			list.addAll(cm.get_all());
+			list.addAll(cm.getAll());
 		}
 		return list;
 	}
@@ -435,8 +438,60 @@ public class AutoMenuBar extends JMenuBar implements ActionListener, ItemListene
 		return null;
 	}
 
+	// Click event
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		// Get the display name of the clicked item
+		String cmd = e.getActionCommand();
+		// Get the item by name
+		Component c = get(cmd);
+		// Must handle each type separately because
+		// you can only cast Component to one type
+		if (c instanceof cMenu) {
+			// Run click action
+			((cMenu) c).act(true);
+			return;
+		}
+		if (c instanceof cItem) {
+			((cItem) c).act(true);
+			return;
+		}
+		if (c instanceof cCheck) {
+			((cCheck) c).act(true);
+			return;
+		}
+		if (c instanceof cRadio) {
+			((cRadio) c).act(true);
+			return;
+		}
+
+	}
+
+	// Item state (e.g. checked) is changed
+	@Override
+	public void itemStateChanged(ItemEvent e) {
+		// Abstract button to determine checked state
+		AbstractButton button = (AbstractButton) e.getItem();
+		// state of item
+		boolean state = button.isSelected();
+		// Get the display name
+		String cmd = button.getText();
+		// Get item by name
+		Component c = get(cmd);
+		// Must handle each type separately because
+		// you can only cast Component to one type
+		if (c instanceof cCheck) {
+			((cCheck) c).state(state);
+			return;
+		}
+		if (c instanceof cRadio) {
+			((cRadio) c).state(state);
+			return;
+		}
+	}
+
 	// Custom JMenu class
-	private class cMenu extends JMenu {
+	private static class cMenu extends JMenu {
 		private static final long serialVersionUID = 1L;
 		// The display name
 		String name;
@@ -459,7 +514,7 @@ public class AutoMenuBar extends JMenuBar implements ActionListener, ItemListene
 		}
 
 		// Get all items for this this menu is an ancestor
-		public ArrayList<Component> get_all() {
+		public ArrayList<Component> getAll() {
 			ArrayList<Component> list = new ArrayList<Component>();
 			// Add all items for which this menu is a parent
 			list.addAll(menus);
@@ -468,7 +523,7 @@ public class AutoMenuBar extends JMenuBar implements ActionListener, ItemListene
 			list.addAll(radiobuttons);
 			// Recursively search menus inside this
 			for (cMenu cm : menus) {
-				list.addAll(cm.get_all());
+				list.addAll(cm.getAll());
 			}
 			return list;
 		}
@@ -507,7 +562,7 @@ public class AutoMenuBar extends JMenuBar implements ActionListener, ItemListene
 		}
 
 		// Add a new item to this menu
-		public void add_item(Component c, String name, String type, String group) {
+		public void addItem(Component c, String name, String type, String group) {
 			// The item has already been configured in the top level "add_item"
 			// method
 			// So, all we have to do is add it to the appropriate list and to
@@ -533,7 +588,7 @@ public class AutoMenuBar extends JMenuBar implements ActionListener, ItemListene
 		}
 
 		// Setter method for click action
-		public void set_action(Consumer<Boolean> c) {
+		public void setAction(Consumer<Boolean> c) {
 			action = c;
 		}
 
@@ -549,7 +604,7 @@ public class AutoMenuBar extends JMenuBar implements ActionListener, ItemListene
 	}
 
 	// Custom JMenuItem class
-	private class cItem extends JMenuItem {
+	private static class cItem extends JMenuItem {
 		private static final long serialVersionUID = 1L;
 		// Display name
 		String name;
@@ -567,7 +622,7 @@ public class AutoMenuBar extends JMenuBar implements ActionListener, ItemListene
 		}
 
 		// Set click action
-		public void set_action(Consumer<Boolean> c) {
+		public void setAction(Consumer<Boolean> c) {
 			action = c;
 		}
 
@@ -584,7 +639,7 @@ public class AutoMenuBar extends JMenuBar implements ActionListener, ItemListene
 	}
 
 	// Custom JCheckBoxMenuItem class
-	private class cCheck extends JCheckBoxMenuItem {
+	private static class cCheck extends JCheckBoxMenuItem {
 		private static final long serialVersionUID = 1L;
 		// Display name
 		String name;
@@ -603,11 +658,11 @@ public class AutoMenuBar extends JMenuBar implements ActionListener, ItemListene
 		}
 
 		// Set click action
-		public void set_action(Consumer<Boolean> c) {
+		public void setAction(Consumer<Boolean> c) {
 			action = c;
 		}
 
-		public void set_statechanged(Consumer<Boolean> c) {
+		public void setStateChanged(Consumer<Boolean> c) {
 			statechanged = c;
 		}
 
@@ -627,7 +682,7 @@ public class AutoMenuBar extends JMenuBar implements ActionListener, ItemListene
 	}
 
 	// Custom JRadioButtonMenuItem class
-	private class cRadio extends JRadioButtonMenuItem {
+	private static class cRadio extends JRadioButtonMenuItem {
 		private static final long serialVersionUID = 1L;
 		// Display name
 		String name;
@@ -650,11 +705,11 @@ public class AutoMenuBar extends JMenuBar implements ActionListener, ItemListene
 		}
 
 		// Set click action
-		public void set_action(Consumer<Boolean> c) {
+		public void setAction(Consumer<Boolean> c) {
 			action = c;
 		}
 
-		public void set_statechanged(Consumer<Boolean> c) {
+		public void setStateChanged(Consumer<Boolean> c) {
 			statechanged = c;
 		}
 
@@ -674,65 +729,13 @@ public class AutoMenuBar extends JMenuBar implements ActionListener, ItemListene
 	}
 
 	// Custom ButtonGroup class
-	private class cGroup extends ButtonGroup {
+	private static class cGroup extends ButtonGroup {
 		private static final long serialVersionUID = 1L;
 		// Reference name
 		String name;
 
 		public cGroup(String s) {
 			name = s;
-		}
-	}
-
-	// Click event
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		// Get the display name of the clicked item
-		String cmd = e.getActionCommand();
-		// Get the item by name
-		Component c = get(cmd);
-		// Must handle each type separately because
-		// you can only cast Component to one type
-		if (c.getClass().equals(cMenu.class)) {
-			// Run click action
-			((cMenu) c).act(true);
-			return;
-		}
-		if (c.getClass().equals(cItem.class)) {
-			((cItem) c).act(true);
-			return;
-		}
-		if (c.getClass().equals(cCheck.class)) {
-			((cCheck) c).act(true);
-			return;
-		}
-		if (c.getClass().equals(cRadio.class)) {
-			((cRadio) c).act(true);
-			return;
-		}
-
-	}
-
-	// Item state (e.g. checked) is changed
-	@Override
-	public void itemStateChanged(ItemEvent e) {
-		// Abstract button to determine checked state
-		AbstractButton button = (AbstractButton) e.getItem();
-		// state of item
-		boolean state = button.isSelected();
-		// Get the display name
-		String cmd = button.getText();
-		// Get item by name
-		Component c = get(cmd);
-		// Must handle each type separately because
-		// you can only cast Component to one type
-		if (c.getClass().equals(cCheck.class)) {
-			((cCheck) c).state(state);
-			return;
-		}
-		if (c.getClass().equals(cRadio.class)) {
-			((cRadio) c).state(state);
-			return;
 		}
 	}
 

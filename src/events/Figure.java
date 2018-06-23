@@ -27,7 +27,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
-public class Figure extends JPanel {
+public class Figure extends ZoomPane {
 
 	/**
 	* 
@@ -449,8 +449,8 @@ public class Figure extends JPanel {
 
 		// Data points
 		for (int i = 0; i < data.size(); i++) {
-			Board.table.input(String.format("%.5g%n", get_x(data.get(i).x)), 4 + i, 1);
-			Board.table.input(String.format("%.5g%n", get_y(data.get(i).y)), 4 + i, 2);
+			Board.table.input(String.format("%.5g", get_x(data.get(i).x)), 4 + i, 1);
+			Board.table.input(String.format("%.5g", get_y(data.get(i).y)), 4 + i, 2);
 
 			Board.table.input(data.get(i).x + "", 4 + i, 3);
 			Board.table.input(data.get(i).y + "", 4 + i, 4);
@@ -458,8 +458,8 @@ public class Figure extends JPanel {
 
 		// Fit data points
 		for (int i = 0; i < fitdata.size(); i++) {
-			Board.table.input(String.format("%.5g%n", get_x(fitdata.get(i).x)), 1 + i, 5);
-			Board.table.input(String.format("%.5g%n", get_y(fitdata.get(i).y)), 1 + i, 6);
+			Board.table.input(String.format("%.5g", get_x(fitdata.get(i).x)), 1 + i, 5);
+			Board.table.input(String.format("%.5g", get_y(fitdata.get(i).y)), 1 + i, 6);
 		}
 
 	}
@@ -815,7 +815,7 @@ public class Figure extends JPanel {
 			return;
 
 		if (fit != "none") {
-			int npoints = get_npoints();
+			npoints = get_npoints();
 		}
 
 		get_headers();

@@ -1,8 +1,6 @@
 /*     */ package events;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
@@ -10,8 +8,6 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.util.ArrayList;
-
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -78,110 +74,108 @@ public class Board extends JPanel implements MouseMotionListener, MouseListener,
 	}
 
 	private void configure_menu() {
-	
+
 		ribbon = new AutoMenuBar(new String[] { "File", "Edit", "Table", "Layers", "Fit type", "Help" });
 		add(ribbon, BorderLayout.NORTH);
 		// Items
-		ribbon.add_item("Reset", "File", "item");
-		ribbon.add_item("Open", "File", "item");
-		ribbon.add_item("Export", "File", "item");
-		ribbon.add_item("Paste", "Edit", "item");
-		ribbon.add_item("Copy", "Edit", "item");
-		ribbon.add_item("About", "Help", "item");
-		ribbon.add_item("Controls", "Help", "item");
+		ribbon.addItem("Reset", "File", "item");
+		ribbon.addItem("Open", "File", "item");
+		ribbon.addItem("Export", "File", "item");
+		ribbon.addItem("Paste", "Edit", "item");
+		ribbon.addItem("Copy", "Edit", "item");
+		ribbon.addItem("About", "Help", "item");
+		ribbon.addItem("Controls", "Help", "item");
 
 		// Checkboxes
-		ribbon.add_item("Original plot", "Layers", "check", true);
-		ribbon.add_item("Origin", "Layers", "check", true);
-		ribbon.add_item("X calibration", "Layers", "check", true);
-		ribbon.add_item("Y calibration", "Layers", "check", true);
-		ribbon.add_item("Data points", "Layers", "check", true);
-		ribbon.add_item("Fit", "Layers", "check", true);
-		ribbon.add_item("Axes", "Layers", "check", true);
-		
+		ribbon.addItem("Original plot", "Layers", "check", true);
+		ribbon.addItem("Origin", "Layers", "check", true);
+		ribbon.addItem("X calibration", "Layers", "check", true);
+		ribbon.addItem("Y calibration", "Layers", "check", true);
+		ribbon.addItem("Data points", "Layers", "check", true);
+		ribbon.addItem("Fit", "Layers", "check", true);
+		ribbon.addItem("Axes", "Layers", "check", true);
+
 		// radiobuttons
-		ribbon.add_item("radios", "bar", "group");
-		ribbon.add_item("Linear", "Fit type", "radio", "radios");
-		ribbon.add_item("Interpolation", "Fit type", "radio", "radios");
-		ribbon.add_item("Spline", "Fit type", "radio", "radios");
-		ribbon.add_item("Connect", "Fit type", "radio", "radios");
-		ribbon.add_item("Regression", "Fit type", "radio", "radios");
-		ribbon.add_item("None", "Fit type", "radio", "radios", true);
-		
-		
+		ribbon.addItem("radios", "bar", "group");
+		ribbon.addItem("Linear", "Fit type", "radio", "radios");
+		ribbon.addItem("Interpolation", "Fit type", "radio", "radios");
+		ribbon.addItem("Spline", "Fit type", "radio", "radios");
+		ribbon.addItem("Connect", "Fit type", "radio", "radios");
+		ribbon.addItem("Regression", "Fit type", "radio", "radios");
+		ribbon.addItem("None", "Fit type", "radio", "radios", true);
 
 		// actions
-		ribbon.set_action("Reset", (y) -> {
+		ribbon.setAction("Reset", (y) -> {
 			figure.set_step(0);
 		});
-		ribbon.set_action("Open", (y) -> {
+		ribbon.setAction("Open", (y) -> {
 			figure.addimage();
 		});
-		ribbon.set_action("Paste", (y) -> {
+		ribbon.setAction("Paste", (y) -> {
 			if (tabbedPane.getSelectedIndex() == 0)
 				figure.getImageFromClipboard();
 		});
-		ribbon.set_action("Copy", (y) -> {
+		ribbon.setAction("Copy", (y) -> {
 			if (tabbedPane.getSelectedIndex() == 1)
 				table.copytoClipboard();
 		});
-		ribbon.set_action("Export", (y) -> {
+		ribbon.setAction("Export", (y) -> {
 			figure.export();
 		});
-		ribbon.set_action("About", (y) -> {
+		ribbon.setAction("About", (y) -> {
 			about();
 		});
-		ribbon.set_action("Controls", (y) -> {
+		ribbon.setAction("Controls", (y) -> {
 			controls();
 		});
-		ribbon.set_action("Regression", (y) -> {
+		ribbon.setAction("Regression", (y) -> {
 			if (y)
 				figure.set_fit("regression");
 		});
 
 		// state changes
-		ribbon.set_statechange("Original plot", (y) -> {
+		ribbon.setStateChange("Original plot", (y) -> {
 			figure.showplot = y;
 		});
-		ribbon.set_statechange("Fit", (y) -> {
+		ribbon.setStateChange("Fit", (y) -> {
 			figure.showfit = y;
 		});
-		ribbon.set_statechange("Origin", (y) -> {
+		ribbon.setStateChange("Origin", (y) -> {
 			figure.showorigin = y;
 		});
-		ribbon.set_statechange("X calibration", (y) -> {
+		ribbon.setStateChange("X calibration", (y) -> {
 			figure.showx = y;
 		});
-		ribbon.set_statechange("Y calibration", (y) -> {
+		ribbon.setStateChange("Y calibration", (y) -> {
 			figure.showy = y;
 		});
-		ribbon.set_statechange("Data points", (y) -> {
+		ribbon.setStateChange("Data points", (y) -> {
 			figure.showdata = y;
 		});
-		ribbon.set_statechange("Axes", (y) -> {
+		ribbon.setStateChange("Axes", (y) -> {
 			figure.showaxes = y;
 		});
-		ribbon.set_action("Linear", (y) -> {
+		ribbon.setAction("Linear", (y) -> {
 			if (y)
 				figure.set_fit("linear");
 		});
-		ribbon.set_action("Interpolation", (y) -> {
+		ribbon.setAction("Interpolation", (y) -> {
 			if (y)
 				figure.set_fit("interp");
 		});
-		ribbon.set_action("Spline", (y) -> {
+		ribbon.setAction("Spline", (y) -> {
 			if (y)
 				figure.set_fit("spline");
 		});
-		ribbon.set_action("Connect", (y) -> {
+		ribbon.setAction("Connect", (y) -> {
 			if (y)
 				figure.set_fit("connect");
 		});
-		ribbon.set_action("None", (y) -> {
+		ribbon.setAction("None", (y) -> {
 			if (y)
 				figure.set_fit("none");
 		});
-		
+
 	}
 
 	public void about() {
